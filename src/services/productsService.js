@@ -182,7 +182,7 @@ function applyProductFilters(query, {
   limit,
 } = {}, ignoredColumns = []) {
   if (onlyActive && !ignoredColumns.includes('is_active')) {
-    query = query.or('is_active.eq.true,is_active.is.null')
+    query = query.eq('is_active', true)
   }
   if (featured && !ignoredColumns.includes('is_featured')) {
     query = query.eq('is_featured', true)
