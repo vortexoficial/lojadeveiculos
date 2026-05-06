@@ -3395,9 +3395,7 @@ td a:nth-of-type(4n),
 .cat-home-item:hover {
   transform: translateY(-3px);
   filter: brightness(1.18);
-  box-shadow:
-    -3px 0 0 0 #ff6a00,
-    -3px 0 24px 6px rgba(255,106,0,.55);
+  box-shadow: -3px 0 0 0 #ff6a00;
 }
 
 .cat-home-item:hover img {
