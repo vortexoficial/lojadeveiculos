@@ -1463,10 +1463,12 @@ td a:nth-of-type(4n),
   content: "";
 }
 
-.product-card:hover {
-  border-color: rgba(255, 106, 0, 0.65);
-  transform: translateY(-10px);
-  box-shadow: var(--shadow), var(--glow);
+@media (hover: hover) and (pointer: fine) {
+  .product-card:hover {
+    border-color: rgba(255, 106, 0, 0.65);
+    transform: translateY(-10px);
+    box-shadow: var(--shadow), var(--glow);
+  }
 }
 
 .product-card-media {
@@ -1488,8 +1490,10 @@ td a:nth-of-type(4n),
   transition: transform 260ms ease;
 }
 
-.product-card:hover .product-card-media img {
-  transform: scale(1.04);
+@media (hover: hover) and (pointer: fine) {
+  .product-card:hover .product-card-media img {
+    transform: scale(1.04);
+  }
 }
 
 .product-card-badge {
@@ -1696,19 +1700,21 @@ td a:nth-of-type(4n),
   display: none;
 }
 
-.category-link:hover {
-  border-color: rgba(255, 106, 0, 0.7);
-  transform: translateY(-4px) scale(1.01);
-  box-shadow: var(--shadow), var(--glow);
-}
+@media (hover: hover) and (pointer: fine) {
+  .category-link:hover {
+    border-color: rgba(255, 106, 0, 0.7);
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: var(--shadow), var(--glow);
+  }
 
-.category-link:hover::before {
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.75) 0%,
-    rgba(0, 0, 0, 0.3) 55%,
-    rgba(0, 0, 0, 0.05) 100%
-  );
+  .category-link:hover::before {
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.75) 0%,
+      rgba(0, 0, 0, 0.3) 55%,
+      rgba(0, 0, 0, 0.05) 100%
+    );
+  }
 }
 
 .category-link strong {
@@ -3393,14 +3399,16 @@ td a:nth-of-type(4n),
   transition: transform .35s ease;
 }
 
-.cat-home-item:hover {
-  transform: translateY(-3px);
-  filter: brightness(1.18);
-  box-shadow: -3px 0 0 0 #ff6a00;
-}
+@media (hover: hover) and (pointer: fine) {
+  .cat-home-item:hover {
+    transform: translateY(-3px);
+    filter: brightness(1.18);
+    box-shadow: -3px 0 0 0 #ff6a00;
+  }
 
-.cat-home-item:hover img {
-  transform: scale(1.03);
+  .cat-home-item:hover img {
+    transform: scale(1.03);
+  }
 }
 
 .cat-home-placeholder {
