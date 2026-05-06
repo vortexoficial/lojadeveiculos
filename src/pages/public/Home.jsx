@@ -71,43 +71,43 @@ function Home() {
             <h2>Escolha sua categoria</h2>
           </div>
         </div>
-        <div className="category-grid premium-categories">
-          {categoryBanners.length > 0
-            ? categoryBanners.map((slot) => (
-                <Link
-                  key={slot.id}
-                  className="category-link category-banner-only"
-                  to={slot.link_to || '/produtos'}
-                >
-                  {slot.image_url ? (
-                    <img src={slot.image_url} alt={slot.name} loading="lazy" />
-                  ) : (
-                    <div className="category-banner-placeholder">{slot.name}</div>
-                  )}
-                </Link>
-              ))
-            : (
-              <>
-                <Link className="category-link category-featured" to="/suplementos" style={{ '--cat-img': 'url(/cat-suplementos.webp)' }}>
-                  <strong>Suplementos</strong>
-                  <span>Whey, creatina, pré-treino e mais</span>
-                </Link>
-                <Link className="category-link category-featured" to="/vestuario" style={{ '--cat-img': 'url(/cat-vestuario.webp)' }}>
-                  <strong>Vestuário</strong>
-                  <span>Vista a força da Pitbull</span>
-                </Link>
-                <Link className="category-link category-featured" to="/produtos" style={{ '--cat-img': 'url(/cat-produtos.webp)' }}>
-                  <strong>Produtos</strong>
-                  <span>Toda a linha disponível</span>
-                </Link>
-                <Link className="category-link category-featured" to="/produtos?sort=promocoes" style={{ '--cat-img': 'url(/cat-promocoes.webp)' }}>
-                  <strong>Ofertas</strong>
-                  <span>Combos e promoções ativas</span>
-                </Link>
-              </>
-            )
-          }
-        </div>
+        {categoryBanners.length > 0 ? (
+          <div className="cat-home-grid">
+            {categoryBanners.map((slot) => (
+              <Link
+                key={slot.id}
+                className="cat-home-item"
+                to={slot.link_to || '/produtos'}
+                aria-label={slot.name}
+              >
+                {slot.image_url ? (
+                  <img src={slot.image_url} alt={slot.name} loading="lazy" />
+                ) : (
+                  <span className="cat-home-placeholder">{slot.name}</span>
+                )}
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="category-grid premium-categories">
+            <Link className="category-link category-featured" to="/suplementos" style={{ '--cat-img': 'url(/cat-suplementos.webp)' }}>
+              <strong>Suplementos</strong>
+              <span>Whey, creatina, pré-treino e mais</span>
+            </Link>
+            <Link className="category-link category-featured" to="/vestuario" style={{ '--cat-img': 'url(/cat-vestuario.webp)' }}>
+              <strong>Vestuário</strong>
+              <span>Vista a força da Pitbull</span>
+            </Link>
+            <Link className="category-link category-featured" to="/produtos" style={{ '--cat-img': 'url(/cat-produtos.webp)' }}>
+              <strong>Produtos</strong>
+              <span>Toda a linha disponível</span>
+            </Link>
+            <Link className="category-link category-featured" to="/produtos?sort=promocoes" style={{ '--cat-img': 'url(/cat-promocoes.webp)' }}>
+              <strong>Ofertas</strong>
+              <span>Combos e promoções ativas</span>
+            </Link>
+          </div>
+        )}
       </section>
 
       <section className="content-section compact-section">
