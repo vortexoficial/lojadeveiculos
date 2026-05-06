@@ -153,22 +153,22 @@ function PublicLayout() {
 
       <Outlet context={{ settings }} />
 
-      {/* Floating WhatsApp */}
-      {supportLink ? (
-        <a
-          className="fab-whatsapp"
-          href={supportLink}
-          target="_blank"
-          rel="noreferrer"
-          aria-label="Falar no WhatsApp"
-          title="Falar no WhatsApp"
-        >
-          <IconWhatsapp />
-        </a>
-      ) : null}
-
-      {/* Music Player */}
-      <MusicPlayer />
+      {/* Floating action buttons */}
+      <div className="fabs">
+        <MusicPlayer />
+        {supportLink ? (
+          <a
+            className="fab-whatsapp"
+            href={supportLink}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Falar no WhatsApp"
+            title="Falar no WhatsApp"
+          >
+            <IconWhatsapp />
+          </a>
+        ) : null}
+      </div>
 
       <footer className="site-footer">
         <div className="footer-main">
