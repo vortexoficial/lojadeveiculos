@@ -8,7 +8,7 @@ export async function listBanners({ onlyActive = false } = {}) {
     .order('display_order', { ascending: true })
     .order('created_at', { ascending: false })
 
-  if (onlyActive) query = query.eq('is_active', true)
+  if (onlyActive) query = query.or('is_active.eq.true,is_active.is.null')
 
   return unwrap(await query)
 }

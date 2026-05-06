@@ -13,7 +13,7 @@ export async function listCategories({ onlyActive = false, type = '' } = {}) {
   const client = getClient()
   let query = client.from('categories').select('*').order('name')
 
-  if (onlyActive) query = query.eq('is_active', true)
+  if (onlyActive) query = query.or('is_active.eq.true,is_active.is.null')
   if (type) query = query.eq('type', type)
 
   const result = await query
