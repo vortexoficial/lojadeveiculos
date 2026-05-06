@@ -1,15 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useOutletContext, useParams } from 'react-router-dom'
+import CheckoutModal from '../../components/CheckoutModal.jsx'
 import EmptyState from '../../components/EmptyState.jsx'
 import Loading from '../../components/Loading.jsx'
 import ProductCard from '../../components/ProductCard.jsx'
-import { env, isSupabaseConfigured } from '../../config/env.js'
+import { isSupabaseConfigured } from '../../config/env.js'
 import { getProductBySlug, listProducts } from '../../services/productsService.js'
 import { formatCurrency, getProductTypeLabel } from '../../utils/formatters.js'
-import {
-  buildProductWhatsappMessage,
-  createWhatsappLink,
-} from '../../utils/whatsapp.js'
+import { createWhatsappLink } from '../../utils/whatsapp.js'
 
 function ProductDetailPage() {
   const { slug } = useParams()
@@ -18,6 +16,7 @@ function ProductDetailPage() {
   const [relatedProducts, setRelatedProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [checkoutOpen, setCheckoutOpen] = useState(false)
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
@@ -48,11 +47,7 @@ function ProductDetailPage() {
     loadProduct()
   }, [slug])
 
-  const productUrl = `${env.appUrl}/produto/${slug}`
-  const buyMessage = product
-    ? buildProductWhatsappMessage(product, productUrl)
-    : settings.default_message
-  const buyLink = createWhatsappLink(settings.whatsapp_number, buyMessage)
+  const productUrl = `${window.location.origin}/produto/${slug}`
   const questionLink = createWhatsappLink(
     settings.whatsapp_number,
     `Olá! Tenho uma dúvida sobre o produto: ${product?.name || ''}. Link: ${productUrl}`,
@@ -135,17 +130,27 @@ function ProductDetailPage() {
           ) : null}
 
           <div className="detail-actions">
-            {buyLink ? (
-              <a className="button whatsapp-button" href={buyLink} target="_blank" rel="noreferrer">
-                Comprar no WhatsApp
-              </a>
-            ) : null}
+            <button
+              className="button whatsapp-button"
+              type="button"
+              onClick={() => setCheckoutOpen(true)}
+            >
+              Comprar
+            </button>
             {questionLink ? (
               <a className="button secondary" href={questionLink} target="_blank" rel="noreferrer">
                 Tirar dúvida
               </a>
             ) : null}
           </div>
+
+          {checkoutOpen && product ? (
+            <CheckoutModal
+              product={product}
+              whatsappNumber={settings.whatsapp_number}
+              onClose={() => setCheckoutOpen(false)}
+            />
+          ) : null}
         </section>
       </div>
 
