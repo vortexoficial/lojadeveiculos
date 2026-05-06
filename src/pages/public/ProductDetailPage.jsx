@@ -1,0 +1,175 @@
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useOutletContext, useParams } from 'react-router-dom'
+import EmptyState from '../../components/EmptyState.jsx'
+import Loading from '../../components/Loading.jsx'
+import ProductCard from '../../components/ProductCard.jsx'
+import { env, isSupabaseConfigured } from '../../config/env.js'
+import { getProductBySlug, listProducts } from '../../services/productsService.js'
+import { formatCurrency, getProductTypeLabel } from '../../utils/formatters.js'
+import {
+  buildProductWhatsappMessage,
+  createWhatsappLink,
+} from '../../utils/whatsapp.js'
+
+function ProductDetailPage() {
+  const { slug } = useParams()
+  const { settings } = useOutletContext()
+  const [product, setProduct] = useState(null)
+  const [relatedProducts, setRelatedProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) {
+      setLoading(false)
+      return
+    }
+
+    async function loadProduct() {
+      try {
+        const nextProduct = await getProductBySlug(slug)
+        setProduct(nextProduct)
+
+        if (nextProduct) {
+          const related = await listProducts({
+            onlyActive: true,
+            type: nextProduct.type,
+            limit: 5,
+          })
+          setRelatedProducts(related.filter((item) => item.id !== nextProduct.id).slice(0, 4))
+        }
+      } catch (err) {
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadProduct()
+  }, [slug])
+
+  const productUrl = `${env.appUrl}/produto/${slug}`
+  const buyMessage = product
+    ? buildProductWhatsappMessage(product, productUrl)
+    : settings.default_message
+  const buyLink = createWhatsappLink(settings.whatsapp_number, buyMessage)
+  const questionLink = createWhatsappLink(
+    settings.whatsapp_number,
+    `Olá! Tenho uma dúvida sobre o produto: ${product?.name || ''}. Link: ${productUrl}`,
+  )
+  const gallery = useMemo(
+    () => [product?.image_url, ...(product?.gallery_urls || [])].filter(Boolean),
+    [product],
+  )
+
+  if (loading) return <Loading />
+  if (error) return <div className="form-status error">{error}</div>
+  if (!product) {
+    return (
+      <main className="page">
+        <EmptyState
+          title="Produto não encontrado"
+          message="Confira se o link está correto ou volte para a lista de produtos."
+          action={<Link to="/produtos">Ver produtos</Link>}
+        />
+      </main>
+    )
+  }
+
+  return (
+    <main className="page">
+      <div className="product-detail">
+        <section className="product-media-panel">
+          {gallery.length ? (
+            gallery.map((url, index) => (
+              <img key={url} src={url} alt={`${product.name} ${index + 1}`} />
+            ))
+          ) : (
+            <div className="image-preview-empty large">Sem imagem</div>
+          )}
+        </section>
+
+        <section className="product-info-panel">
+          <div className="tag-row">
+            <span className="tag">{getProductTypeLabel(product.type)}</span>
+            {product.category ? <span className="tag">{product.category.name}</span> : null}
+            {product.subcategory ? <span className="tag">{product.subcategory}</span> : null}
+            {product.promo_price ? <span className="tag hot">Promoção</span> : null}
+          </div>
+          <h1>{product.name}</h1>
+          {product.brand ? <p className="muted-text">Marca: {product.brand}</p> : null}
+          <div className="price-row large">
+            {product.promo_price ? (
+              <span className="old-price">{formatCurrency(product.price)}</span>
+            ) : null}
+            <strong>{formatCurrency(product.promo_price || product.price)}</strong>
+          </div>
+          <p>{product.description}</p>
+          <p className="stock-line">Estoque disponível: {product.stock}</p>
+
+          {product.type === 'suplemento' ? (
+            <div className="info-box">
+              <strong>Uso informativo</strong>
+              <p>Consulte o rótulo do fabricante. Suplementos não substituem alimentação equilibrada.</p>
+            </div>
+          ) : null}
+
+          {product.type === 'vestuario' ? (
+            <div className="info-box">
+              <strong>Vestuário personalizado</strong>
+              <p>Confira tamanhos, cores e personalização disponível pelo atendimento.</p>
+            </div>
+          ) : null}
+
+          {product.variants?.length ? (
+            <div>
+              <h2>Variações</h2>
+              <div className="variant-list">
+                {product.variants.map((variant) => (
+                  <span key={variant.id} className="tag">
+                    {variant.variant_type}: {variant.name} ({variant.stock})
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          <div className="detail-actions">
+            {buyLink ? (
+              <a className="button whatsapp-button" href={buyLink} target="_blank" rel="noreferrer">
+                Comprar no WhatsApp
+              </a>
+            ) : null}
+            {questionLink ? (
+              <a className="button secondary" href={questionLink} target="_blank" rel="noreferrer">
+                Tirar dúvida
+              </a>
+            ) : null}
+          </div>
+        </section>
+      </div>
+
+      {relatedProducts.length ? (
+        <section className="content-section no-padding related-section">
+          <div className="section-heading">
+            <div>
+              <span className="eyebrow">Relacionados</span>
+              <h2>Você também pode curtir</h2>
+            </div>
+          </div>
+          <div className="product-grid">
+            {relatedProducts.map((item) => (
+              <ProductCard
+                key={item.id}
+                product={item}
+                whatsappNumber={settings.whatsapp_number}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
+    </main>
+  )
+}
+
+export default ProductDetailPage
