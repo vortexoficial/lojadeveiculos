@@ -3393,12 +3393,15 @@ td a:nth-of-type(4n),
 }
 
 .cat-home-item:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 36px rgba(0,0,0,.6);
+  transform: translateY(-3px);
+  filter: brightness(1.18);
+  box-shadow:
+    -3px 0 0 0 #ff6a00,
+    -3px 0 24px 6px rgba(255,106,0,.55);
 }
 
 .cat-home-item:hover img {
-  transform: scale(1.04);
+  transform: scale(1.03);
 }
 
 .cat-home-placeholder {
