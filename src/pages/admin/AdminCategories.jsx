@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { useConfirm } from '../../components/ConfirmModal.jsx'
+import CustomSelect from '../../components/CustomSelect.jsx'
 import FormStatus from '../../components/FormStatus.jsx'
 import Loading from '../../components/Loading.jsx'
 import { PRODUCT_TYPES } from '../../data/options.js'
@@ -9,6 +11,10 @@ import {
 } from '../../services/categoriesService.js'
 
 const emptyCategory = { id: '', name: '', slug: '', type: '', is_active: true }
+const categoryTypeOptions = [
+  { value: '', label: 'Geral' },
+  ...PRODUCT_TYPES,
+]
 
 const IcoEdit = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
@@ -40,6 +46,7 @@ function AdminCategories() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const { confirm, confirmation } = useConfirm()
 
   async function loadCategories() {
     setLoading(true)
@@ -84,7 +91,13 @@ function AdminCategories() {
   }
 
   async function handleDelete(id) {
-    if (!window.confirm('Excluir esta categoria?')) return
+    const confirmed = await confirm({
+      title: 'Excluir categoria?',
+      message: 'Produtos vinculados podem ficar sem categoria após essa remoção.',
+      confirmLabel: 'Excluir',
+      tone: 'danger',
+    })
+    if (!confirmed) return
     try {
       await deleteCategory(id)
       setCategories((prev) => prev.filter((c) => c.id !== id))
@@ -131,12 +144,11 @@ function AdminCategories() {
               </label>
               <label>
                 Tipo
-                <select value={form.type || ''} onChange={(e) => updateField('type', e.target.value)}>
-                  <option value="">Geral</option>
-                  {PRODUCT_TYPES.map((t) => (
-                    <option key={t.value} value={t.value}>{t.label}</option>
-                  ))}
-                </select>
+                <CustomSelect
+                  value={form.type || ''}
+                  onChange={(value) => updateField('type', value)}
+                  options={categoryTypeOptions}
+                />
               </label>
               <label className="checkbox-label">
                 <input
@@ -197,6 +209,7 @@ function AdminCategories() {
           ) : null}
         </div>
       </div>
+      {confirmation}
     </section>
   )
 }

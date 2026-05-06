@@ -173,14 +173,14 @@ function AdminBlogForm() {
   if (loading) return <Loading />
 
   return (
-    <section className="admin-page">
+    <section className="admin-page blog-editor-page">
       <div className="admin-page-heading">
         <div>
           <span className="eyebrow">Blog</span>
           <h1>{isEditing ? 'Editar artigo' : 'Novo artigo'}</h1>
         </div>
         <div className="admin-page-heading-actions">
-          <button className="button secondary small" type="button" onClick={() => navigate('/admin/blog')}>
+          <button className="button secondary small blog-back-button" type="button" onClick={() => navigate('/admin/blog')}>
             ← Voltar
           </button>
         </div>
@@ -188,7 +188,7 @@ function AdminBlogForm() {
 
       <form className="blog-form-grid" onSubmit={handleSubmit}>
         <div className="blog-main-col">
-          <div className="panel">
+          <div className="panel blog-content-panel">
             <div className="panel-heading"><span>01</span><strong>Conteúdo</strong></div>
 
             <div className="form-group">
@@ -220,7 +220,7 @@ function AdminBlogForm() {
             </label>
           </div>
 
-          <div className="panel editor-panel">
+          <div className="panel editor-panel blog-editor-panel">
             <div className="panel-heading">
               <strong>Conteúdo HTML</strong>
               <button
@@ -254,7 +254,7 @@ function AdminBlogForm() {
         </div>
 
         <div className="blog-side-col">
-          <div className="panel">
+          <div className="panel blog-publish-panel">
             <div className="panel-heading"><span>02</span><strong>Publicação</strong></div>
 
             <label className="checkbox-label">
@@ -283,7 +283,7 @@ function AdminBlogForm() {
 
             <FormStatus error={error} success={success} />
 
-            <div className="form-actions" style={{ flexDirection: 'column' }}>
+            <div className="form-actions blog-submit-actions">
               <button className="button" type="submit" disabled={saving}>
                 {saving ? 'Salvando…' : isEditing ? 'Salvar alterações' : 'Criar artigo'}
               </button>

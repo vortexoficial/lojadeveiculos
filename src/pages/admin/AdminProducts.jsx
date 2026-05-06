@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useConfirm } from '../../components/ConfirmModal.jsx'
 import Loading from '../../components/Loading.jsx'
 import ProductFilters from '../../components/ProductFilters.jsx'
 import { listCategories } from '../../services/categoriesService.js'
@@ -35,6 +36,7 @@ function AdminProducts() {
   const [seeding, setSeeding] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const { confirm, confirmation } = useConfirm()
 
   async function loadProducts() {
     setLoading(true)
@@ -76,7 +78,13 @@ function AdminProducts() {
   }
 
   async function handleDelete(id) {
-    if (!window.confirm('Excluir este produto permanentemente?')) return
+    const confirmed = await confirm({
+      title: 'Excluir produto?',
+      message: 'Essa ação remove o produto permanentemente do catálogo.',
+      confirmLabel: 'Excluir',
+      tone: 'danger',
+    })
+    if (!confirmed) return
     try {
       setSuccess('')
       setError('')
@@ -88,7 +96,14 @@ function AdminProducts() {
   }
 
   async function handleCreateDemoProducts() {
-    if (!window.confirm('Criar 10 produtos demo e categorias de teste?')) return
+    const confirmed = await confirm({
+      eyebrow: 'Produtos demo',
+      title: 'Criar produtos demo?',
+      message: 'Serão criados ou atualizados produtos e categorias de teste.',
+      confirmLabel: 'Criar demo',
+      tone: 'primary',
+    })
+    if (!confirmed) return
     setSeeding(true)
     setError('')
     setSuccess('')
@@ -202,6 +217,7 @@ function AdminProducts() {
           </tbody>
         </table>
       </div>
+      {confirmation}
     </section>
   )
 }

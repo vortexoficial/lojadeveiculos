@@ -111,9 +111,9 @@ function AdminDashboard() {
           <h1>Visão geral</h1>
         </div>
         <div className="admin-page-heading-actions">
-          <a className="button secondary" href="/" target="_blank" rel="noreferrer">
+          <a className="button secondary dashboard-store-button" href="/" target="_blank" rel="noreferrer">
             <IcoStore />
-            Ver loja
+            <span>Ver loja</span>
           </a>
         </div>
       </div>

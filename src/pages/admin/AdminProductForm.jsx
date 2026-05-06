@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import CustomSelect from '../../components/CustomSelect.jsx'
 import FormStatus from '../../components/FormStatus.jsx'
 import ImageUploader from '../../components/ImageUploader.jsx'
 import Loading from '../../components/Loading.jsx'
+import NumberInput from '../../components/NumberInput.jsx'
 import { PRODUCT_OBJECTIVES, PRODUCT_TYPES } from '../../data/options.js'
 import { listCategories } from '../../services/categoriesService.js'
 import {
@@ -10,7 +12,6 @@ import {
   saveProductWithVariants,
 } from '../../services/productsService.js'
 import { uploadStoreImage } from '../../services/storageService.js'
-import { splitByComma } from '../../utils/formatters.js'
 
 const emptyProduct = {
   id: '',
@@ -69,8 +70,8 @@ function AdminProductForm() {
   const [product, setProduct] = useState(emptyProduct)
   const [categories, setCategories] = useState([])
   const [variantText, setVariantText] = useState('')
-  const [galleryText, setGalleryText] = useState('')
-  const [imageFile, setImageFile] = useState(null)
+  const [imageUrls, setImageUrls] = useState([])
+  const [imageFiles, setImageFiles] = useState([])
   const [loading, setLoading] = useState(Boolean(id))
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -90,7 +91,11 @@ function AdminProductForm() {
           if (!currentProduct) throw new Error('Produto não encontrado.')
           setProduct({ ...emptyProduct, ...currentProduct })
           setVariantText(variantsToText(currentProduct.variants))
-          setGalleryText((currentProduct.gallery_urls || []).join(', '))
+          setImageUrls(
+            [currentProduct.image_url, ...(currentProduct.gallery_urls || [])]
+              .filter(Boolean)
+              .slice(0, 5),
+          )
         }
       } catch (err) {
         setError(err.message)
@@ -150,15 +155,17 @@ function AdminProductForm() {
     setSaving(true)
 
     try {
-      let imageUrl = product.image_url
-      if (imageFile) {
-        imageUrl = await uploadStoreImage(imageFile, 'products')
+      const uploadedImageUrls = []
+      for (const file of imageFiles.slice(0, 5)) {
+        uploadedImageUrls.push(await uploadStoreImage(file, 'products'))
       }
+      const allImageUrls = [...imageUrls, ...uploadedImageUrls].filter(Boolean).slice(0, 5)
+      const imageUrl = allImageUrls[0] || ''
 
       const payload = {
         ...product,
         image_url: imageUrl,
-        gallery_urls: splitByComma(galleryText),
+        gallery_urls: allImageUrls.slice(1),
       }
       const variants = parseVariants(variantText, fallbackVariantType)
 
@@ -205,30 +212,25 @@ function AdminProductForm() {
         </label>
         <label>
           Tipo
-          <select
+          <CustomSelect
             value={product.type}
-            onChange={(event) => updateField('type', event.target.value)}
-          >
-            {PRODUCT_TYPES.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => updateField('type', value)}
+            options={PRODUCT_TYPES}
+          />
         </label>
         <label>
           Categoria
-          <select
+          <CustomSelect
             value={product.category_id || ''}
-            onChange={(event) => updateField('category_id', event.target.value)}
-          >
-            <option value="">Sem categoria</option>
-            {filteredCategories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => updateField('category_id', value)}
+            options={[
+              { value: '', label: 'Sem categoria' },
+              ...filteredCategories.map((category) => ({
+                value: category.id,
+                label: category.name,
+              })),
+            ]}
+          />
         </label>
         <label>
           Subcategoria
@@ -248,32 +250,29 @@ function AdminProductForm() {
         </label>
         <label>
           Preço normal
-          <input
-            type="number"
+          <NumberInput
             min="0"
             step="0.01"
             value={product.price}
-            onChange={(event) => updateField('price', event.target.value)}
+            onChange={(value) => updateField('price', value)}
             required
           />
         </label>
         <label>
           Preço promocional
-          <input
-            type="number"
+          <NumberInput
             min="0"
             step="0.01"
             value={product.promo_price || ''}
-            onChange={(event) => updateField('promo_price', event.target.value)}
+            onChange={(value) => updateField('promo_price', value)}
           />
         </label>
         <label>
           Estoque geral
-          <input
-            type="number"
+          <NumberInput
             min="0"
             value={product.stock}
-            onChange={(event) => updateField('stock', event.target.value)}
+            onChange={(value) => updateField('stock', value)}
           />
         </label>
         <label className="checkbox-label">
@@ -327,20 +326,14 @@ function AdminProductForm() {
           </small>
         </label>
 
-        <label className="full-field">
-          Galeria opcional
-          <textarea
-            value={galleryText}
-            onChange={(event) => setGalleryText(event.target.value)}
-            placeholder="URLs separadas por vírgula"
-          />
-        </label>
-
         <ImageUploader
-          label="Imagem principal"
-          currentUrl={product.image_url}
-          onFileChange={setImageFile}
+          label="Fotos do produto"
+          urls={imageUrls}
+          files={imageFiles}
+          onUrlsChange={setImageUrls}
+          onFilesChange={setImageFiles}
           disabled={saving}
+          maxImages={5}
         />
 
         <FormStatus error={error} success={success} />

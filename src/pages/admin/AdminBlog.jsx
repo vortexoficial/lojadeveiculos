@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useConfirm } from '../../components/ConfirmModal.jsx'
 import EmptyState from '../../components/EmptyState.jsx'
 import Loading from '../../components/Loading.jsx'
 import { deletePost, listPosts } from '../../services/blogService.js'
@@ -13,6 +14,7 @@ function AdminBlog() {
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const { confirm, confirmation } = useConfirm()
 
   async function load() {
     try {
@@ -27,7 +29,13 @@ function AdminBlog() {
   useEffect(() => { load() }, [])
 
   async function handleDelete(post) {
-    if (!window.confirm(`Excluir "${post.title}"?`)) return
+    const confirmed = await confirm({
+      title: 'Excluir artigo?',
+      message: `O artigo "${post.title}" será removido permanentemente.`,
+      confirmLabel: 'Excluir',
+      tone: 'danger',
+    })
+    if (!confirmed) return
     try {
       await deletePost(post.id)
       setPosts((prev) => prev.filter((p) => p.id !== post.id))
@@ -87,6 +95,7 @@ function AdminBlog() {
           </table>
         </div>
       ) : null}
+      {confirmation}
     </section>
   )
 }

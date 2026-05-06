@@ -9,6 +9,7 @@ import ProductCard from '../../components/ProductCard.jsx'
 import { isSupabaseConfigured } from '../../config/env.js'
 import { listBanners } from '../../services/bannersService.js'
 import { listPosts } from '../../services/blogService.js'
+import { listHomeCategoryBanners } from '../../services/homeCategoryBannersService.js'
 import { listProducts } from '../../services/productsService.js'
 
 function Home() {
@@ -18,6 +19,7 @@ function Home() {
   const [clothing, setClothing] = useState([])
   const [promos, setPromos] = useState([])
   const [banners, setBanners] = useState([])
+  const [categoryBanners, setCategoryBanners] = useState([])
   const [recentPosts, setRecentPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -30,10 +32,11 @@ function Home() {
 
     async function loadHome() {
       try {
-        const [featuredProducts, activeBanners, latestPosts] = await Promise.all([
+        const [featuredProducts, activeBanners, latestPosts, catBanners] = await Promise.all([
           listProducts({ onlyActive: true, featured: true, limit: 12 }),
           listBanners({ onlyActive: true }),
           listPosts({ onlyPublished: true, limit: 3 }),
+          listHomeCategoryBanners().catch(() => []),
         ])
         const [supplementProducts, clothingProducts, promoProducts] = await Promise.all([
           listProducts({ onlyActive: true, type: 'suplemento', limit: 4 }),
@@ -45,6 +48,7 @@ function Home() {
         setClothing(clothingProducts)
         setPromos(promoProducts.filter((product) => product.promo_price).slice(0, 4))
         setBanners(activeBanners)
+        setCategoryBanners(catBanners)
         setRecentPosts(latestPosts)
       } catch (err) {
         setError(err.message)
@@ -68,22 +72,41 @@ function Home() {
           </div>
         </div>
         <div className="category-grid premium-categories">
-          <Link className="category-link category-featured" to="/suplementos" style={{ '--cat-img': 'url(/cat-suplementos.webp)' }}>
-            <strong>Suplementos</strong>
-            <span>Whey, creatina, pré-treino e mais</span>
-          </Link>
-          <Link className="category-link category-featured" to="/vestuario" style={{ '--cat-img': 'url(/cat-vestuario.webp)' }}>
-            <strong>Vestuário</strong>
-            <span>Vista a força da Pitbull</span>
-          </Link>
-          <Link className="category-link category-featured" to="/produtos" style={{ '--cat-img': 'url(/cat-produtos.webp)' }}>
-            <strong>Produtos</strong>
-            <span>Toda a linha disponível</span>
-          </Link>
-          <Link className="category-link category-featured" to="/produtos?sort=promocoes" style={{ '--cat-img': 'url(/cat-promocoes.webp)' }}>
-            <strong>Ofertas</strong>
-            <span>Combos e promoções ativas</span>
-          </Link>
+          {categoryBanners.length > 0
+            ? categoryBanners.map((slot) => (
+                <Link
+                  key={slot.id}
+                  className="category-link category-banner-only"
+                  to={slot.link_to || '/produtos'}
+                >
+                  {slot.image_url ? (
+                    <img src={slot.image_url} alt={slot.name} loading="lazy" />
+                  ) : (
+                    <div className="category-banner-placeholder">{slot.name}</div>
+                  )}
+                </Link>
+              ))
+            : (
+              <>
+                <Link className="category-link category-featured" to="/suplementos" style={{ '--cat-img': 'url(/cat-suplementos.webp)' }}>
+                  <strong>Suplementos</strong>
+                  <span>Whey, creatina, pré-treino e mais</span>
+                </Link>
+                <Link className="category-link category-featured" to="/vestuario" style={{ '--cat-img': 'url(/cat-vestuario.webp)' }}>
+                  <strong>Vestuário</strong>
+                  <span>Vista a força da Pitbull</span>
+                </Link>
+                <Link className="category-link category-featured" to="/produtos" style={{ '--cat-img': 'url(/cat-produtos.webp)' }}>
+                  <strong>Produtos</strong>
+                  <span>Toda a linha disponível</span>
+                </Link>
+                <Link className="category-link category-featured" to="/produtos?sort=promocoes" style={{ '--cat-img': 'url(/cat-promocoes.webp)' }}>
+                  <strong>Ofertas</strong>
+                  <span>Combos e promoções ativas</span>
+                </Link>
+              </>
+            )
+          }
         </div>
       </section>
 

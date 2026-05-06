@@ -79,3 +79,15 @@ export async function deleteCategory(id) {
   const client = getClient()
   return unwrap(await client.from('categories').delete().eq('id', id))
 }
+
+export async function updateCategoryBanner(id, bannerUrl) {
+  const client = getClient()
+  const result = await client
+    .from('categories')
+    .update({ banner_url: bannerUrl })
+    .eq('id', id)
+    .select()
+    .single()
+  if (isMissingColumn(result.error, 'banner_url')) return null
+  return normalizeCategory(unwrap(result))
+}

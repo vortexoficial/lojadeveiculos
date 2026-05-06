@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
+import { useConfirm } from '../../components/ConfirmModal.jsx'
 import FormStatus from '../../components/FormStatus.jsx'
 import Loading from '../../components/Loading.jsx'
+import NumberInput from '../../components/NumberInput.jsx'
 import { deleteBanner, listBanners, saveBanner } from '../../services/bannersService.js'
 import { uploadStoreImage } from '../../services/storageService.js'
 
@@ -14,11 +16,6 @@ const emptyBanner = {
   display_order: 1,
   is_active: true,
 }
-
-const positionOptions = [
-  'center center', 'center top', 'center bottom',
-  'left center', 'right center', 'left top', 'right top',
-]
 
 const IcoTrash = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
@@ -81,6 +78,7 @@ function AdminBanners() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const { confirm, confirmation } = useConfirm()
 
   async function loadBanners() {
     setLoading(true)
@@ -145,7 +143,13 @@ function AdminBanners() {
       if (desktopFile) desktopImageUrl = await uploadStoreImage(desktopFile, 'banners/desktop')
       if (mobileFile) mobileImageUrl = await uploadStoreImage(mobileFile, 'banners/mobile')
 
-      await saveBanner({ ...form, desktop_image_url: desktopImageUrl, mobile_image_url: mobileImageUrl })
+      await saveBanner({
+        ...form,
+        desktop_image_url: desktopImageUrl,
+        mobile_image_url: mobileImageUrl,
+        desktop_position: 'center center',
+        mobile_position: 'center center',
+      })
       resetForm()
       setSuccess('Banner salvo com sucesso.')
       await loadBanners()
@@ -157,7 +161,13 @@ function AdminBanners() {
   }
 
   async function handleDelete(id) {
-    if (!window.confirm('Excluir este banner?')) return
+    const confirmed = await confirm({
+      title: 'Excluir banner?',
+      message: 'O banner será removido da vitrine da loja.',
+      confirmLabel: 'Excluir',
+      tone: 'danger',
+    })
+    if (!confirmed) return
     try {
       await deleteBanner(id)
       setBanners((prev) => prev.filter((b) => b.id !== id))
@@ -169,7 +179,7 @@ function AdminBanners() {
   const isEditing = Boolean(form.id)
 
   return (
-    <section className="admin-page">
+    <section className="admin-page banners-admin-page">
       <div className="admin-page-heading">
         <div>
           <span className="eyebrow">Home</span>
@@ -177,11 +187,11 @@ function AdminBanners() {
         </div>
       </div>
 
-      <form className="panel" onSubmit={handleSubmit}>
+      <form className="panel banner-form-panel" onSubmit={handleSubmit}>
         <div className="panel-heading"><span>01</span><strong>{isEditing ? 'Editar banner' : 'Novo banner'}</strong></div>
 
-        <div className="form-grid">
-          <label>
+        <div className="banner-settings-grid">
+          <label className="banner-title-field">
             Nome interno <span className="field-required">*</span>
             <input
               value={form.title}
@@ -190,34 +200,21 @@ function AdminBanners() {
               required
             />
           </label>
-          <label>
+          <label className="banner-order-field">
             Ordem de exibição
-            <input
-              type="number"
+            <NumberInput
               min="1"
               value={form.display_order}
-              onChange={(e) => updateField('display_order', e.target.value)}
+              onChange={(value) => updateField('display_order', value)}
             />
           </label>
-          <label>
-            Posição desktop
-            <select value={form.desktop_position || 'center center'} onChange={(e) => updateField('desktop_position', e.target.value)}>
-              {positionOptions.map((p) => <option key={p} value={p}>{p}</option>)}
-            </select>
-          </label>
-          <label>
-            Posição mobile
-            <select value={form.mobile_position || 'center center'} onChange={(e) => updateField('mobile_position', e.target.value)}>
-              {positionOptions.map((p) => <option key={p} value={p}>{p}</option>)}
-            </select>
-          </label>
-          <label className="checkbox-label">
+          <label className="checkbox-label banner-active-field">
             <input type="checkbox" checked={form.is_active} onChange={(e) => updateField('is_active', e.target.checked)} />
             Banner ativo
           </label>
         </div>
 
-        <div className="panel-heading" style={{ marginTop: 16 }}><span>02</span><strong>Imagens</strong></div>
+        <div className="panel-heading banner-images-heading"><span>02</span><strong>Imagens do banner principal</strong></div>
         <div className="banner-img-row">
           <ImageField
             label="Desktop"
@@ -261,7 +258,7 @@ function AdminBanners() {
               </div>
               <div className="banner-row-info">
                 <strong>{banner.title}</strong>
-                <span>{banner.desktop_position} / {banner.mobile_position}</span>
+                <span>Principal: desktop e mobile</span>
               </div>
               <span className={`status-badge ${banner.is_active ? 'active' : 'inactive'}`}>
                 {banner.is_active ? 'Ativo' : 'Inativo'}
@@ -280,6 +277,7 @@ function AdminBanners() {
       ) : (!loading ? (
         <div className="panel empty-panel">Nenhum banner cadastrado.</div>
       ) : null)}
+      {confirmation}
     </section>
   )
 }

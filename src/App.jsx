@@ -3,6 +3,7 @@ import AdminLayout from './layouts/AdminLayout.jsx'
 import PublicLayout from './layouts/PublicLayout.jsx'
 import ProtectedRoute from './routes/ProtectedRoute.jsx'
 import AdminBanners from './pages/admin/AdminBanners.jsx'
+import AdminCategoryBanners from './pages/admin/AdminCategoryBanners.jsx'
 import AdminBlog from './pages/admin/AdminBlog.jsx'
 import AdminBlogForm from './pages/admin/AdminBlogForm.jsx'
 import AdminCategories from './pages/admin/AdminCategories.jsx'
@@ -51,6 +52,7 @@ function App() {
         <Route path="blog/novo" element={<AdminBlogForm />} />
         <Route path="blog/editar/:id" element={<AdminBlogForm />} />
         <Route path="banners" element={<AdminBanners />} />
+        <Route path="banners-categorias" element={<AdminCategoryBanners />} />
         <Route path="configuracoes" element={<AdminSettings />} />
       </Route>
 
