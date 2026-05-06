@@ -2835,21 +2835,26 @@ td a:nth-of-type(4n),
 }
 
 .loading-state {
-  display: flex;
-  gap: 10px;
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  display: grid;
   align-items: center;
   justify-content: center;
-  min-height: 140px;
-  color: var(--muted);
+  min-height: 100svh;
+  background:
+    radial-gradient(circle at center, rgba(255, 106, 0, 0.08), transparent 24rem),
+    #050505;
 }
 
 .spinner {
-  width: 24px;
-  height: 24px;
-  border: 3px solid var(--line);
+  width: 42px;
+  height: 42px;
+  border: 3px solid rgba(255, 255, 255, 0.12);
   border-top-color: var(--orange);
   border-radius: 50%;
-  animation: spin 0.85s linear infinite;
+  box-shadow: 0 0 32px rgba(255, 106, 0, 0.22);
+  animation: spin 0.75s linear infinite;
 }
 
 .dashboard-grid {
