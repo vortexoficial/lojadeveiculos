@@ -1,12 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import FormStatus from '../../components/FormStatus.jsx'
-import ImageUploader from '../../components/ImageUploader.jsx'
 import Loading from '../../components/Loading.jsx'
-import {
-  deleteBanner,
-  listBanners,
-  saveBanner,
-} from '../../services/bannersService.js'
+import { deleteBanner, listBanners, saveBanner } from '../../services/bannersService.js'
 import { uploadStoreImage } from '../../services/storageService.js'
 
 const emptyBanner = {
@@ -21,20 +16,67 @@ const emptyBanner = {
 }
 
 const positionOptions = [
-  'center center',
-  'center top',
-  'center bottom',
-  'left center',
-  'right center',
-  'left top',
-  'right top',
+  'center center', 'center top', 'center bottom',
+  'left center', 'right center', 'left top', 'right top',
 ]
+
+const IcoTrash = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
+    <polyline points="3 6 5 6 21 6" />
+    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+    <path d="M10 11v6M14 11v6" />
+    <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
+  </svg>
+)
+
+const IcoEdit = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
+    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+  </svg>
+)
+
+function ImageField({ label, currentUrl, previewSrc, onFileChange, disabled }) {
+  const inputRef = useRef(null)
+  const displaySrc = previewSrc || currentUrl
+
+  return (
+    <div className="banner-img-field">
+      <span className="banner-img-label">{label}</span>
+      <div className="banner-img-preview-box" onClick={() => inputRef.current?.click()}>
+        {displaySrc ? (
+          <img src={displaySrc} alt={label} />
+        ) : (
+          <div className="banner-img-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="28" height="28">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" />
+            </svg>
+            <span>Clique para escolher</span>
+          </div>
+        )}
+        <div className="banner-img-overlay">Trocar imagem</div>
+      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        disabled={disabled}
+        style={{ display: 'none' }}
+        onChange={(e) => onFileChange(e.target.files?.[0] || null)}
+      />
+    </div>
+  )
+}
 
 function AdminBanners() {
   const [banners, setBanners] = useState([])
   const [form, setForm] = useState(emptyBanner)
   const [desktopFile, setDesktopFile] = useState(null)
   const [mobileFile, setMobileFile] = useState(null)
+  const [desktopPreview, setDesktopPreview] = useState(null)
+  const [mobilePreview, setMobilePreview] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -51,9 +93,21 @@ function AdminBanners() {
     }
   }
 
+  useEffect(() => { loadBanners() }, [])
+
   useEffect(() => {
-    loadBanners()
-  }, [])
+    if (!desktopFile) { setDesktopPreview(null); return }
+    const url = URL.createObjectURL(desktopFile)
+    setDesktopPreview(url)
+    return () => URL.revokeObjectURL(url)
+  }, [desktopFile])
+
+  useEffect(() => {
+    if (!mobileFile) { setMobilePreview(null); return }
+    const url = URL.createObjectURL(mobileFile)
+    setMobilePreview(url)
+    return () => URL.revokeObjectURL(url)
+  }, [mobileFile])
 
   function updateField(name, value) {
     setForm((current) => ({ ...current, [name]: value }))
@@ -73,48 +127,25 @@ function AdminBanners() {
     setMobileFile(null)
     setError('')
     setSuccess('')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   async function handleSubmit(event) {
     event.preventDefault()
     setError('')
     setSuccess('')
-
-    if (!form.title.trim()) {
-      setError('Informe um nome interno para o banner.')
-      return
-    }
-
-    if (!desktopFile && !form.desktop_image_url) {
-      setError('Envie a imagem desktop do banner.')
-      return
-    }
-
-    if (!mobileFile && !form.mobile_image_url) {
-      setError('Envie a imagem mobile do banner.')
-      return
-    }
+    if (!form.title.trim()) { setError('Informe um nome interno para o banner.'); return }
+    if (!desktopFile && !form.desktop_image_url) { setError('Envie a imagem desktop do banner.'); return }
+    if (!mobileFile && !form.mobile_image_url) { setError('Envie a imagem mobile do banner.'); return }
 
     setSaving(true)
-
     try {
       let desktopImageUrl = form.desktop_image_url
       let mobileImageUrl = form.mobile_image_url
+      if (desktopFile) desktopImageUrl = await uploadStoreImage(desktopFile, 'banners/desktop')
+      if (mobileFile) mobileImageUrl = await uploadStoreImage(mobileFile, 'banners/mobile')
 
-      if (desktopFile) {
-        desktopImageUrl = await uploadStoreImage(desktopFile, 'banners/desktop')
-      }
-
-      if (mobileFile) {
-        mobileImageUrl = await uploadStoreImage(mobileFile, 'banners/mobile')
-      }
-
-      await saveBanner({
-        ...form,
-        desktop_image_url: desktopImageUrl,
-        mobile_image_url: mobileImageUrl,
-      })
-
+      await saveBanner({ ...form, desktop_image_url: desktopImageUrl, mobile_image_url: mobileImageUrl })
       resetForm()
       setSuccess('Banner salvo com sucesso.')
       await loadBanners()
@@ -126,16 +157,16 @@ function AdminBanners() {
   }
 
   async function handleDelete(id) {
-    const confirmed = window.confirm('Excluir este banner?')
-    if (!confirmed) return
-
+    if (!window.confirm('Excluir este banner?')) return
     try {
       await deleteBanner(id)
-      await loadBanners()
+      setBanners((prev) => prev.filter((b) => b.id !== id))
     } catch (err) {
       setError(err.message)
     }
   }
+
+  const isEditing = Boolean(form.id)
 
   return (
     <section className="admin-page">
@@ -143,154 +174,112 @@ function AdminBanners() {
         <div>
           <span className="eyebrow">Home</span>
           <h1>Banners</h1>
-          <p>Cadastre uma versão desktop e uma versão mobile para cada banner.</p>
         </div>
       </div>
 
-      <form className="panel form-grid" onSubmit={handleSubmit}>
-        <div className="form-block-title full-field">
-          <span>01</span>
-          <strong>Dados do banner</strong>
+      <form className="panel" onSubmit={handleSubmit}>
+        <div className="panel-heading"><span>01</span><strong>{isEditing ? 'Editar banner' : 'Novo banner'}</strong></div>
+
+        <div className="form-grid">
+          <label>
+            Nome interno <span className="field-required">*</span>
+            <input
+              value={form.title}
+              onChange={(e) => updateField('title', e.target.value)}
+              placeholder="Ex.: Banner promoção de verão"
+              required
+            />
+          </label>
+          <label>
+            Ordem de exibição
+            <input
+              type="number"
+              min="1"
+              value={form.display_order}
+              onChange={(e) => updateField('display_order', e.target.value)}
+            />
+          </label>
+          <label>
+            Posição desktop
+            <select value={form.desktop_position || 'center center'} onChange={(e) => updateField('desktop_position', e.target.value)}>
+              {positionOptions.map((p) => <option key={p} value={p}>{p}</option>)}
+            </select>
+          </label>
+          <label>
+            Posição mobile
+            <select value={form.mobile_position || 'center center'} onChange={(e) => updateField('mobile_position', e.target.value)}>
+              {positionOptions.map((p) => <option key={p} value={p}>{p}</option>)}
+            </select>
+          </label>
+          <label className="checkbox-label">
+            <input type="checkbox" checked={form.is_active} onChange={(e) => updateField('is_active', e.target.checked)} />
+            Banner ativo
+          </label>
         </div>
 
-        <label>
-          Nome interno
-          <input
-            value={form.title}
-            onChange={(event) => updateField('title', event.target.value)}
-            placeholder="Ex.: Banner suplementos"
-            required
+        <div className="panel-heading" style={{ marginTop: 16 }}><span>02</span><strong>Imagens</strong></div>
+        <div className="banner-img-row">
+          <ImageField
+            label="Desktop"
+            currentUrl={form.desktop_image_url}
+            previewSrc={desktopPreview}
+            onFileChange={setDesktopFile}
+            disabled={saving}
           />
-        </label>
-        <label>
-          Ordem
-          <input
-            type="number"
-            min="1"
-            value={form.display_order}
-            onChange={(event) => updateField('display_order', event.target.value)}
+          <ImageField
+            label="Mobile"
+            currentUrl={form.mobile_image_url}
+            previewSrc={mobilePreview}
+            onFileChange={setMobileFile}
+            disabled={saving}
           />
-        </label>
-        <label>
-          Posição desktop
-          <select
-            value={form.desktop_position || 'center center'}
-            onChange={(event) => updateField('desktop_position', event.target.value)}
-          >
-            {positionOptions.map((position) => (
-              <option key={position} value={position}>
-                {position}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Posição mobile
-          <select
-            value={form.mobile_position || 'center center'}
-            onChange={(event) => updateField('mobile_position', event.target.value)}
-          >
-            {positionOptions.map((position) => (
-              <option key={position} value={position}>
-                {position}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="checkbox-label">
-          <input
-            type="checkbox"
-            checked={form.is_active}
-            onChange={(event) => updateField('is_active', event.target.checked)}
-          />
-          Banner ativo
-        </label>
-
-        <div className="form-block-title full-field">
-          <span>02</span>
-          <strong>Imagens</strong>
         </div>
-        <ImageUploader
-          label="Imagem desktop"
-          currentUrl={form.desktop_image_url}
-          onFileChange={setDesktopFile}
-          disabled={saving}
-        />
-        <ImageUploader
-          label="Imagem mobile"
-          currentUrl={form.mobile_image_url}
-          onFileChange={setMobileFile}
-          disabled={saving}
-        />
 
         <FormStatus error={error} success={success} />
-        <div className="form-actions full-field">
+        <div className="form-actions">
           <button className="button" type="submit" disabled={saving}>
-            {saving ? 'Salvando...' : 'Salvar banner'}
+            {saving ? 'Salvando…' : 'Salvar banner'}
           </button>
-          <button className="button secondary" type="button" onClick={resetForm}>
-            Limpar
-          </button>
+          <button className="button secondary" type="button" onClick={resetForm}>Limpar</button>
         </div>
       </form>
 
       {loading ? <Loading /> : null}
-      <div className="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Ordem</th>
-              <th>Banner</th>
-              <th>Desktop</th>
-              <th>Mobile</th>
-              <th>Status</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {banners.map((banner) => (
-              <tr key={banner.id}>
-                <td>{banner.display_order}</td>
-                <td>
-                  <strong>{banner.title}</strong>
-                  <br />
-                  <small>
-                    D: {banner.desktop_position} | M: {banner.mobile_position}
-                  </small>
-                </td>
-                <td>
-                  <img
-                    className="table-banner-image desktop"
-                    src={banner.desktop_image_url}
-                    alt={`Desktop: ${banner.title}`}
-                  />
-                </td>
-                <td>
-                  <img
-                    className="table-banner-image mobile"
-                    src={banner.mobile_image_url}
-                    alt={`Mobile: ${banner.title}`}
-                  />
-                </td>
-                <td>{banner.is_active ? 'Ativo' : 'Inativo'}</td>
-                <td className="table-actions">
-                  <button type="button" onClick={() => editBanner(banner)}>
-                    Editar
-                  </button>
-                  <button type="button" onClick={() => handleDelete(banner.id)}>
-                    Excluir
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {!banners.length && !loading ? (
-              <tr>
-                <td colSpan="6">Nenhum banner cadastrado.</td>
-              </tr>
-            ) : null}
-          </tbody>
-        </table>
-      </div>
+
+      {banners.length ? (
+        <div className="banners-list">
+          {banners.map((banner) => (
+            <div key={banner.id} className={`banner-row${!banner.is_active ? ' banner-row--inactive' : ''}`}>
+              <div className="banner-row-order">#{banner.display_order}</div>
+              <div className="banner-row-thumbs">
+                {banner.desktop_image_url ? (
+                  <img className="banner-thumb" src={banner.desktop_image_url} alt="Desktop" />
+                ) : <div className="banner-thumb-empty">D</div>}
+                {banner.mobile_image_url ? (
+                  <img className="banner-thumb mobile" src={banner.mobile_image_url} alt="Mobile" />
+                ) : <div className="banner-thumb-empty">M</div>}
+              </div>
+              <div className="banner-row-info">
+                <strong>{banner.title}</strong>
+                <span>{banner.desktop_position} / {banner.mobile_position}</span>
+              </div>
+              <span className={`status-badge ${banner.is_active ? 'active' : 'inactive'}`}>
+                {banner.is_active ? 'Ativo' : 'Inativo'}
+              </span>
+              <div className="banner-row-actions">
+                <button type="button" className="action-btn edit" onClick={() => editBanner(banner)} title="Editar">
+                  <IcoEdit />
+                </button>
+                <button type="button" className="action-btn delete" onClick={() => handleDelete(banner.id)} title="Excluir">
+                  <IcoTrash />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (!loading ? (
+        <div className="panel empty-panel">Nenhum banner cadastrado.</div>
+      ) : null)}
     </section>
   )
 }

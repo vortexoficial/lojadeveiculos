@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import ProductCard from './ProductCard.jsx'
 
 const GAP = 14
@@ -25,20 +25,44 @@ function ProductCarousel({ products = [], whatsappNumber = '' }) {
   const [containerWidth, setContainerWidth] = useState(0)
   const [perPage, setPerPage] = useState(5)
 
-  // Measure on mount + track resize
-  useEffect(() => {
+  const measureViewport = useCallback(() => {
     const el = viewportRef.current
-    if (!el) return
-    const update = (w) => {
-      if (w <= 0) return
-      setContainerWidth(w)
-      setPerPage(getPerPage(w))
+    if (!el) return 0
+
+    const nextWidth = Math.floor(el.getBoundingClientRect().width || el.offsetWidth || 0)
+    if (nextWidth > 0) {
+      setContainerWidth(nextWidth)
+      setPerPage(getPerPage(nextWidth))
     }
-    update(el.offsetWidth)
-    const obs = new ResizeObserver(([entry]) => update(Math.floor(entry.contentRect.width)))
-    obs.observe(el)
-    return () => obs.disconnect()
+
+    return nextWidth
   }, [])
+
+  // Measure on mount, when products arrive, and whenever the carousel resizes.
+  useLayoutEffect(() => {
+    const el = viewportRef.current
+    if (!el) return undefined
+
+    measureViewport()
+    const frame = requestAnimationFrame(measureViewport)
+    const timer = window.setTimeout(measureViewport, 120)
+
+    const handleResize = () => measureViewport()
+    window.addEventListener('resize', handleResize)
+
+    let observer
+    if (typeof ResizeObserver !== 'undefined') {
+      observer = new ResizeObserver(measureViewport)
+      observer.observe(el)
+    }
+
+    return () => {
+      cancelAnimationFrame(frame)
+      window.clearTimeout(timer)
+      window.removeEventListener('resize', handleResize)
+      observer?.disconnect()
+    }
+  }, [measureViewport, products.length])
 
   const n = products.length
   const needsLoop = n > perPage
@@ -82,9 +106,11 @@ function ProductCarousel({ products = [], whatsappNumber = '' }) {
     }
   }, [trackIndex, perPage, n, needsLoop])
 
-  const itemWidth = containerWidth > 0
-    ? (containerWidth - (perPage - 1) * GAP) / perPage
-    : 0
+  const fallbackWidth = typeof window !== 'undefined'
+    ? Math.min(Math.max(window.innerWidth - 32, 260), 1180)
+    : 1180
+  const effectiveWidth = containerWidth || fallbackWidth
+  const itemWidth = (effectiveWidth - (perPage - 1) * GAP) / perPage
 
   const offset = -(trackIndex * (itemWidth + GAP))
 
@@ -127,7 +153,7 @@ function ProductCarousel({ products = [], whatsappNumber = '' }) {
           style={trackStyle}
           onTransitionEnd={handleTransitionEnd}
         >
-          {containerWidth > 0 && extended.map((product, index) => (
+          {extended.map((product, index) => (
             <div
               key={`${product.id}-${index}`}
               className="product-carousel-item"

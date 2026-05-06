@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { useEffect, useLayoutEffect, useState } from 'react'
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 function IconWhatsapp() {
   return (
@@ -21,21 +21,31 @@ function IconInstagram() {
 import BrandLogo from '../components/BrandLogo.jsx'
 import { isSupabaseConfigured } from '../config/env.js'
 import { DEFAULT_SETTINGS, getStoreSettings } from '../services/settingsService.js'
+import { logVisit } from '../services/visitorsService.js'
 import { createWhatsappLink } from '../utils/whatsapp.js'
 
 function PublicLayout() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [settings, setSettings] = useState(DEFAULT_SETTINGS)
   const [menuOpen, setMenuOpen] = useState(false)
   const [search, setSearch] = useState('')
 
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  }, [location.pathname, location.search])
+
   useEffect(() => {
     if (!isSupabaseConfigured) return
-
     getStoreSettings()
       .then(setSettings)
       .catch(() => setSettings(DEFAULT_SETTINGS))
   }, [])
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) return
+    logVisit(location.pathname)
+  }, [location.pathname])
 
   const whatsappNumber =
     settings.whatsapp_number?.trim() || DEFAULT_SETTINGS.whatsapp_number

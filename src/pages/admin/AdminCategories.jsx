@@ -8,13 +8,30 @@ import {
   saveCategory,
 } from '../../services/categoriesService.js'
 
-const emptyCategory = {
-  id: '',
-  name: '',
-  slug: '',
-  type: '',
-  is_active: true,
-}
+const emptyCategory = { id: '', name: '', slug: '', type: '', is_active: true }
+
+const IcoEdit = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
+    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+  </svg>
+)
+
+const IcoTrash = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
+    <polyline points="3 6 5 6 21 6" />
+    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+    <path d="M10 11v6M14 11v6" />
+    <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
+  </svg>
+)
+
+const IcoPlus = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" width="16" height="16">
+    <line x1="12" y1="5" x2="12" y2="19" />
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+)
 
 function AdminCategories() {
   const [categories, setCategories] = useState([])
@@ -35,14 +52,13 @@ function AdminCategories() {
     }
   }
 
-  useEffect(() => {
-    loadCategories()
-  }, [])
+  useEffect(() => { loadCategories() }, [])
 
   function editCategory(category) {
     setForm(category)
     setSuccess('')
     setError('')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   function updateField(name, value) {
@@ -53,14 +69,8 @@ function AdminCategories() {
     event.preventDefault()
     setError('')
     setSuccess('')
-
-    if (!form.name.trim()) {
-      setError('Informe o nome da categoria.')
-      return
-    }
-
+    if (!form.name.trim()) { setError('Informe o nome da categoria.'); return }
     setSaving(true)
-
     try {
       await saveCategory(form)
       setForm(emptyCategory)
@@ -74,116 +84,118 @@ function AdminCategories() {
   }
 
   async function handleDelete(id) {
-    const confirmed = window.confirm('Excluir esta categoria?')
-    if (!confirmed) return
-
+    if (!window.confirm('Excluir esta categoria?')) return
     try {
       await deleteCategory(id)
-      await loadCategories()
+      setCategories((prev) => prev.filter((c) => c.id !== id))
     } catch (err) {
       setError(err.message)
     }
   }
 
+  const isEditing = Boolean(form.id)
+
   return (
     <section className="admin-page">
       <div className="admin-page-heading">
         <div>
-          <span className="eyebrow">CRUD</span>
+          <span className="eyebrow">Catálogo</span>
           <h1>Categorias</h1>
         </div>
       </div>
 
-      <form className="panel form-grid" onSubmit={handleSubmit}>
-        <label>
-          Nome
-          <input
-            value={form.name}
-            onChange={(event) => updateField('name', event.target.value)}
-            required
-          />
-        </label>
-        <label>
-          Slug opcional
-          <input
-            value={form.slug || ''}
-            onChange={(event) => updateField('slug', event.target.value)}
-            placeholder="gerado automaticamente"
-          />
-        </label>
-        <label>
-          Tipo
-          <select
-            value={form.type || ''}
-            onChange={(event) => updateField('type', event.target.value)}
-          >
-            <option value="">Geral</option>
-            {PRODUCT_TYPES.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="checkbox-label">
-          <input
-            type="checkbox"
-            checked={form.is_active}
-            onChange={(event) => updateField('is_active', event.target.checked)}
-          />
-          Ativa
-        </label>
-        <FormStatus error={error} success={success} />
-        <div className="form-actions full-field">
-          <button className="button" type="submit" disabled={saving}>
-            {saving ? 'Salvando...' : 'Salvar categoria'}
-          </button>
-          <button
-            className="button secondary"
-            type="button"
-            onClick={() => setForm(emptyCategory)}
-          >
-            Limpar
-          </button>
+      <div className="cats-layout">
+        <div className="cats-form-col">
+          <div className="panel">
+            <div className="panel-heading">
+              <IcoPlus />
+              <strong>{isEditing ? 'Editar categoria' : 'Nova categoria'}</strong>
+            </div>
+            <form className="cats-form" onSubmit={handleSubmit}>
+              <label>
+                Nome <span className="field-required">*</span>
+                <input
+                  value={form.name}
+                  onChange={(e) => updateField('name', e.target.value)}
+                  placeholder="Ex: Proteínas"
+                  required
+                />
+              </label>
+              <label>
+                Slug (URL)
+                <input
+                  value={form.slug || ''}
+                  onChange={(e) => updateField('slug', e.target.value)}
+                  placeholder="gerado automaticamente"
+                />
+              </label>
+              <label>
+                Tipo
+                <select value={form.type || ''} onChange={(e) => updateField('type', e.target.value)}>
+                  <option value="">Geral</option>
+                  {PRODUCT_TYPES.map((t) => (
+                    <option key={t.value} value={t.value}>{t.label}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={form.is_active}
+                  onChange={(e) => updateField('is_active', e.target.checked)}
+                />
+                Categoria ativa
+              </label>
+              <FormStatus error={error} success={success} />
+              <div className="form-actions">
+                <button className="button" type="submit" disabled={saving}>
+                  {saving ? 'Salvando…' : isEditing ? 'Salvar edição' : 'Criar categoria'}
+                </button>
+                {isEditing ? (
+                  <button className="button secondary" type="button" onClick={() => setForm(emptyCategory)}>
+                    Cancelar
+                  </button>
+                ) : null}
+              </div>
+            </form>
+          </div>
         </div>
-      </form>
 
-      {loading ? <Loading /> : null}
-      <div className="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Slug</th>
-              <th>Tipo</th>
-              <th>Status</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categories.map((category) => (
-              <tr key={category.id}>
-                <td>{category.name}</td>
-                <td>{category.slug}</td>
-                <td>{category.type || 'Geral'}</td>
-                <td>{category.is_active ? 'Ativa' : 'Inativa'}</td>
-                <td className="table-actions">
-                  <button type="button" onClick={() => editCategory(category)}>
-                    Editar
-                  </button>
-                  <button type="button" onClick={() => handleDelete(category.id)}>
-                    Excluir
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {!categories.length && !loading ? (
-              <tr>
-                <td colSpan="5">Nenhuma categoria cadastrada.</td>
-              </tr>
-            ) : null}
-          </tbody>
-        </table>
+        <div className="cats-list-col">
+          {loading ? <Loading /> : null}
+          {!loading && !categories.length ? (
+            <div className="panel empty-panel">
+              <p>Nenhuma categoria cadastrada ainda.</p>
+            </div>
+          ) : null}
+          {categories.length ? (
+            <div className="cats-grid">
+              {categories.map((cat) => (
+                <div key={cat.id} className={`cat-card${!cat.is_active ? ' cat-card--inactive' : ''}`}>
+                  <div className="cat-card-body">
+                    <strong>{cat.name}</strong>
+                    <div className="cat-card-meta">
+                      <span className="cat-slug">{cat.slug}</span>
+                      {cat.type ? <span className="cat-type">{cat.type}</span> : null}
+                    </div>
+                  </div>
+                  <div className="cat-card-status">
+                    <span className={`status-dot ${cat.is_active ? 'active' : 'inactive'}`} />
+                    {cat.is_active ? 'Ativa' : 'Inativa'}
+                  </div>
+                  <div className="cat-card-actions">
+                    <button type="button" className="action-btn edit" onClick={() => editCategory(cat)} title="Editar">
+                      <IcoEdit />
+                    </button>
+                    <button type="button" className="action-btn delete" onClick={() => handleDelete(cat.id)} title="Excluir">
+                      <IcoTrash />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </div>
       </div>
     </section>
   )

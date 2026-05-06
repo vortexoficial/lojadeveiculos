@@ -1,12 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import FormStatus from '../../components/FormStatus.jsx'
 import Loading from '../../components/Loading.jsx'
-import {
-  createPost,
-  getPostById,
-  updatePost,
-} from '../../services/blogService.js'
+import { createPost, getPostById, updatePost } from '../../services/blogService.js'
 
 const EMPTY = {
   title: '',
@@ -27,16 +23,98 @@ function slugify(str) {
     .replace(/^-+|-+$/g, '')
 }
 
+function wrapSelection(ref, before, after, placeholder = 'texto') {
+  const el = ref.current
+  if (!el) return null
+  const start = el.selectionStart
+  const end = el.selectionEnd
+  const selected = el.value.substring(start, end) || placeholder
+  const next = el.value.substring(0, start) + before + selected + after + el.value.substring(end)
+  const cursorEnd = start + before.length + selected.length + after.length
+  return { next, cursor: [start + before.length, start + before.length + selected.length], cursorEnd }
+}
+
+function EditorToolbar({ editorRef, onUpdate }) {
+  function wrap(before, after, placeholder) {
+    const result = wrapSelection(editorRef, before, after, placeholder)
+    if (!result) return
+    onUpdate(result.next)
+    requestAnimationFrame(() => {
+      editorRef.current?.focus()
+      editorRef.current?.setSelectionRange(result.cursor[0], result.cursor[1])
+    })
+  }
+
+  function insertBlock(template) {
+    const el = editorRef.current
+    if (!el) return
+    const pos = el.selectionStart
+    const val = el.value
+    const before = val.substring(0, pos)
+    const after = val.substring(pos)
+    const sep = before.length && !before.endsWith('\n') ? '\n' : ''
+    onUpdate(before + sep + template + '\n' + after)
+    requestAnimationFrame(() => el.focus())
+  }
+
+  function insertLink() {
+    const url = window.prompt('URL do link:')
+    if (!url) return
+    wrap(`<a href="${url}">`, '</a>', 'texto do link')
+  }
+
+  function insertImage() {
+    const url = window.prompt('URL da imagem:')
+    if (!url) return
+    insertBlock(`<img src="${url}" alt="" />`)
+  }
+
+  return (
+    <div className="editor-toolbar">
+      <button type="button" className="editor-tb-btn" title="Negrito" onClick={() => wrap('<strong>', '</strong>')}>
+        <b>B</b>
+      </button>
+      <button type="button" className="editor-tb-btn" title="Itálico" onClick={() => wrap('<em>', '</em>')}>
+        <em>I</em>
+      </button>
+      <button type="button" className="editor-tb-btn" title="Sublinhado" onClick={() => wrap('<u>', '</u>')}>
+        <u>U</u>
+      </button>
+      <div className="editor-tb-sep" />
+      <button type="button" className="editor-tb-btn" title="Título H2" onClick={() => wrap('<h2>', '</h2>', 'Título')}>H2</button>
+      <button type="button" className="editor-tb-btn" title="Título H3" onClick={() => wrap('<h3>', '</h3>', 'Subtítulo')}>H3</button>
+      <div className="editor-tb-sep" />
+      <button type="button" className="editor-tb-btn" title="Parágrafo" onClick={() => wrap('<p>', '</p>', 'parágrafo')}>¶</button>
+      <button type="button" className="editor-tb-btn" title="Citação" onClick={() => wrap('<blockquote>', '</blockquote>', 'citação')}>❝</button>
+      <div className="editor-tb-sep" />
+      <button type="button" className="editor-tb-btn" title="Lista" onClick={() => insertBlock('<ul>\n  <li>Item 1</li>\n  <li>Item 2</li>\n</ul>')}>UL</button>
+      <button type="button" className="editor-tb-btn" title="Lista numerada" onClick={() => insertBlock('<ol>\n  <li>Item 1</li>\n  <li>Item 2</li>\n</ol>')}>OL</button>
+      <div className="editor-tb-sep" />
+      <button type="button" className="editor-tb-btn" title="Código inline" onClick={() => wrap('<code>', '</code>')}>
+        {'</>'}
+      </button>
+      <button type="button" className="editor-tb-btn" title="Bloco de código" onClick={() => insertBlock('<pre><code>\n// código aqui\n</code></pre>')}>
+        pre
+      </button>
+      <div className="editor-tb-sep" />
+      <button type="button" className="editor-tb-btn" title="Link" onClick={insertLink}>🔗</button>
+      <button type="button" className="editor-tb-btn" title="Imagem" onClick={insertImage}>🖼</button>
+    </div>
+  )
+}
+
 function AdminBlogForm() {
   const { id } = useParams()
   const navigate = useNavigate()
   const isEditing = Boolean(id)
+  const editorRef = useRef(null)
 
   const [form, setForm] = useState(EMPTY)
   const [loading, setLoading] = useState(isEditing)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [showPreview, setShowPreview] = useState(false)
 
   useEffect(() => {
     if (!isEditing) return
@@ -101,82 +179,116 @@ function AdminBlogForm() {
           <span className="eyebrow">Blog</span>
           <h1>{isEditing ? 'Editar artigo' : 'Novo artigo'}</h1>
         </div>
+        <div className="admin-page-heading-actions">
+          <button className="button secondary small" type="button" onClick={() => navigate('/admin/blog')}>
+            ← Voltar
+          </button>
+        </div>
       </div>
 
-      <form className="panel form-grid" onSubmit={handleSubmit}>
-        <div className="form-block-title full-field">
-          <span>01</span>
-          <strong>Conteúdo</strong>
+      <form className="blog-form-grid" onSubmit={handleSubmit}>
+        <div className="blog-main-col">
+          <div className="panel">
+            <div className="panel-heading"><span>01</span><strong>Conteúdo</strong></div>
+
+            <div className="form-group">
+              <label>
+                Título
+                <input value={form.title} onChange={handleTitleChange} required placeholder="Título do artigo" />
+              </label>
+            </div>
+
+            <div className="form-row">
+              <label>
+                Slug (URL)
+                <input value={form.slug} onChange={(e) => update('slug', e.target.value)} required />
+              </label>
+              <label>
+                URL da imagem de capa
+                <input value={form.cover_url} onChange={(e) => update('cover_url', e.target.value)} placeholder="https://..." />
+              </label>
+            </div>
+
+            <label>
+              Resumo
+              <textarea
+                value={form.excerpt}
+                onChange={(e) => update('excerpt', e.target.value)}
+                rows={2}
+                placeholder="Breve descrição exibida na listagem..."
+              />
+            </label>
+          </div>
+
+          <div className="panel editor-panel">
+            <div className="panel-heading">
+              <strong>Conteúdo HTML</strong>
+              <button
+                type="button"
+                className={`editor-preview-toggle${showPreview ? ' active' : ''}`}
+                onClick={() => setShowPreview((v) => !v)}
+              >
+                {showPreview ? 'Editor' : 'Preview'}
+              </button>
+            </div>
+            {!showPreview ? (
+              <div className="editor-wrap">
+                <EditorToolbar editorRef={editorRef} onUpdate={(val) => update('content', val)} />
+                <textarea
+                  ref={editorRef}
+                  className="editor-textarea"
+                  value={form.content}
+                  onChange={(e) => update('content', e.target.value)}
+                  rows={18}
+                  placeholder="<p>Escreva o conteúdo em HTML aqui...</p>"
+                  spellCheck={false}
+                />
+              </div>
+            ) : (
+              <div
+                className="editor-preview-area"
+                dangerouslySetInnerHTML={{ __html: form.content || '<p style="color:var(--muted)">Sem conteúdo ainda.</p>' }}
+              />
+            )}
+          </div>
         </div>
 
-        <label className="full-field">
-          Título
-          <input value={form.title} onChange={handleTitleChange} required />
-        </label>
+        <div className="blog-side-col">
+          <div className="panel">
+            <div className="panel-heading"><span>02</span><strong>Publicação</strong></div>
 
-        <label>
-          Slug (URL)
-          <input value={form.slug} onChange={(e) => update('slug', e.target.value)} required />
-        </label>
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={form.published}
+                onChange={(e) => update('published', e.target.checked)}
+              />
+              Publicado (visível no site)
+            </label>
 
-        <label>
-          URL da imagem de capa
-          <input value={form.cover_url} onChange={(e) => update('cover_url', e.target.value)} placeholder="https://..." />
-        </label>
+            <label>
+              Data de publicação
+              <input
+                type="date"
+                value={form.published_at}
+                onChange={(e) => update('published_at', e.target.value)}
+              />
+            </label>
 
-        <label className="full-field">
-          Resumo (excerpt)
-          <textarea
-            value={form.excerpt}
-            onChange={(e) => update('excerpt', e.target.value)}
-            rows={2}
-            placeholder="Breve descrição exibida na listagem..."
-          />
-        </label>
+            {form.cover_url ? (
+              <div className="cover-preview">
+                <img src={form.cover_url} alt="Capa" />
+              </div>
+            ) : null}
 
-        <label className="full-field">
-          Conteúdo (HTML)
-          <textarea
-            value={form.content}
-            onChange={(e) => update('content', e.target.value)}
-            rows={16}
-            placeholder="<p>Escreva o conteúdo em HTML aqui...</p>"
-            style={{ fontFamily: 'monospace', fontSize: 13 }}
-          />
-        </label>
+            <FormStatus error={error} success={success} />
 
-        <div className="form-block-title full-field">
-          <span>02</span>
-          <strong>Publicação</strong>
-        </div>
-
-        <label className="checkbox-label">
-          <input
-            type="checkbox"
-            checked={form.published}
-            onChange={(e) => update('published', e.target.checked)}
-          />
-          Publicado (visível no site)
-        </label>
-
-        <label>
-          Data de publicação
-          <input
-            type="date"
-            value={form.published_at}
-            onChange={(e) => update('published_at', e.target.value)}
-          />
-        </label>
-
-        <FormStatus error={error} success={success} />
-
-        <div className="form-actions full-field">
-          <button className="button" type="submit" disabled={saving}>
-            {saving ? 'Salvando...' : isEditing ? 'Salvar alterações' : 'Criar artigo'}
-          </button>
-          <button className="button secondary" type="button" onClick={() => navigate('/admin/blog')}>
-            Cancelar
-          </button>
+            <div className="form-actions" style={{ flexDirection: 'column' }}>
+              <button className="button" type="submit" disabled={saving}>
+                {saving ? 'Salvando…' : isEditing ? 'Salvar alterações' : 'Criar artigo'}
+              </button>
+            </div>
+          </div>
         </div>
       </form>
     </section>

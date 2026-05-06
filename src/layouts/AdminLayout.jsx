@@ -3,6 +3,15 @@ import { createPortal } from 'react-dom'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 
+function IcoViewStore() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+  )
+}
+
 function IcoDashboard() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -119,6 +128,10 @@ function SidebarContent({ user, signOut }) {
       </div>
 
       <div className="admin-sidebar-bottom">
+        <a className="admin-store-link" href="/" target="_blank" rel="noreferrer">
+          <IcoViewStore />
+          Ver loja
+        </a>
         <div className="admin-user">
           <div className="admin-user-avatar">{initial}</div>
           <div className="admin-user-info">
@@ -174,9 +187,13 @@ function AdminLayout() {
           <IcoMenu />
         </button>
         <img src="/logo.webp" alt="Pitbull Admin" className="admin-topbar-logo" />
-        <button className="admin-topbar-avatar" type="button" onClick={signOut} title="Sair da conta">
-          {initial}
-        </button>
+        <div className="admin-topbar-right">
+          <div className="admin-topbar-avatar">{initial}</div>
+          <button className="admin-topbar-signout" type="button" onClick={signOut} aria-label="Sair da conta">
+            <IcoLogout />
+            <span>Sair</span>
+          </button>
+        </div>
       </header>
 
       {/* Mobile drawer */}

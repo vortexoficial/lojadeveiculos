@@ -1,4 +1,5 @@
 import { getClient, isMissingTable } from './helpers.js'
+import { getVisitorStats } from './visitorsService.js'
 
 async function countTable(client, table) {
   const { count, error } = await client
@@ -12,12 +13,13 @@ async function countTable(client, table) {
 
 export async function getDashboardSummary() {
   const client = getClient()
-  const [products, categories, banners, posts] = await Promise.all([
+  const [products, categories, banners, posts, visitors] = await Promise.all([
     countTable(client, 'products'),
     countTable(client, 'categories'),
     countTable(client, 'home_banners'),
     countTable(client, 'blog_posts'),
+    getVisitorStats(),
   ])
 
-  return { products, categories, banners, posts }
+  return { products, categories, banners, posts, visitors }
 }

@@ -80,7 +80,7 @@ function Home() {
             <strong>Produtos</strong>
             <span>Toda a linha disponível</span>
           </Link>
-          <Link className="category-link category-featured" to="/produtos?sort=promocoes" style={{ '--cat-img': 'url(/cat-ofertas.webp)' }}>
+          <Link className="category-link category-featured" to="/produtos?sort=promocoes" style={{ '--cat-img': 'url(/cat-promocoes.webp)' }}>
             <strong>Ofertas</strong>
             <span>Combos e promoções ativas</span>
           </Link>
