@@ -19,6 +19,7 @@ function IconInstagram() {
   )
 }
 import BrandLogo from '../components/BrandLogo.jsx'
+import MusicPlayer from '../components/MusicPlayer.jsx'
 import { isSupabaseConfigured } from '../config/env.js'
 import { DEFAULT_SETTINGS, getStoreSettings } from '../services/settingsService.js'
 import { logVisit } from '../services/visitorsService.js'
@@ -151,6 +152,23 @@ function PublicLayout() {
       </header>
 
       <Outlet context={{ settings }} />
+
+      {/* Floating WhatsApp */}
+      {supportLink ? (
+        <a
+          className="fab-whatsapp"
+          href={supportLink}
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Falar no WhatsApp"
+          title="Falar no WhatsApp"
+        >
+          <IconWhatsapp />
+        </a>
+      ) : null}
+
+      {/* Music Player */}
+      <MusicPlayer />
 
       <footer className="site-footer">
         <div className="footer-main">
