@@ -1327,6 +1327,8 @@ td a:nth-of-type(4n),
 
 .product-carousel-item {
   position: relative;
+  overflow: hidden;
+  min-width: 0;
 }
 
 .product-carousel-item:hover,

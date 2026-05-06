@@ -128,7 +128,11 @@ function ProductCarousel({ products = [], whatsappNumber = '' }) {
         </div>
       ) : null}
 
-      <div className="product-carousel-viewport" ref={viewportRef}>
+      <div
+        className="product-carousel-viewport"
+        ref={viewportRef}
+        style={containerWidth === 0 ? { visibility: 'hidden' } : undefined}
+      >
         <div
           className="product-carousel-track"
           style={trackStyle}
