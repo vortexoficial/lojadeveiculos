@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ProductCard from './ProductCard.jsx'
 
 const GAP = 14
@@ -25,24 +25,17 @@ function ProductCarousel({ products = [], whatsappNumber = '' }) {
   const [containerWidth, setContainerWidth] = useState(0)
   const [perPage, setPerPage] = useState(5)
 
-  // Synchronous first measurement before paint
-  useLayoutEffect(() => {
-    const el = viewportRef.current
-    if (!el) return
-    const w = el.offsetWidth
-    setContainerWidth(w)
-    setPerPage(getPerPage(w))
-  }, [])
-
-  // Responsive updates
+  // Measure on mount + track resize
   useEffect(() => {
     const el = viewportRef.current
     if (!el) return
-    const obs = new ResizeObserver(([entry]) => {
-      const w = Math.floor(entry.contentRect.width)
+    const update = (w) => {
+      if (w <= 0) return
       setContainerWidth(w)
       setPerPage(getPerPage(w))
-    })
+    }
+    update(el.offsetWidth)
+    const obs = new ResizeObserver(([entry]) => update(Math.floor(entry.contentRect.width)))
     obs.observe(el)
     return () => obs.disconnect()
   }, [])
@@ -128,17 +121,13 @@ function ProductCarousel({ products = [], whatsappNumber = '' }) {
         </div>
       ) : null}
 
-      <div
-        className="product-carousel-viewport"
-        ref={viewportRef}
-        style={containerWidth === 0 ? { visibility: 'hidden' } : undefined}
-      >
+      <div className="product-carousel-viewport" ref={viewportRef}>
         <div
           className="product-carousel-track"
           style={trackStyle}
           onTransitionEnd={handleTransitionEnd}
         >
-          {extended.map((product, index) => (
+          {containerWidth > 0 && extended.map((product, index) => (
             <div
               key={`${product.id}-${index}`}
               className="product-carousel-item"
