@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
-// Adicione os arquivos na pasta public/music/ e liste aqui:
 const TRACKS = [
-  // '/music/faixa-01.mp3',
+  '/music/audio.mp3',
 ]
 
 function IconPlay() {
