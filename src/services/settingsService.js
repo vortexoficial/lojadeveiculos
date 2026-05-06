@@ -3,7 +3,7 @@ import { getClient, isMissingColumn, unwrap, unwrapMaybe } from './helpers.js'
 export const DEFAULT_SETTINGS = {
   id: null,
   store_name: 'Pitbull Suplementos',
-  whatsapp_number: '5500000000000',
+  whatsapp_number: '5511918334855',
   logo_url: '/logo.webp',
   instagram_url: '',
   default_message: 'Ola! Quero saber mais sobre os produtos da loja.',
