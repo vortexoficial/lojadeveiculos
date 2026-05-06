@@ -3379,7 +3379,8 @@ td a:nth-of-type(4n),
   aspect-ratio: 4 / 3;
   background: #0a0a0a;
   text-decoration: none;
-  transition: transform .25s ease, box-shadow .25s ease;
+  border: 1px solid rgba(255,106,0,.45);
+  transition: transform .25s ease, box-shadow .25s ease, filter .25s ease;
 }
 
 .cat-home-item img {
