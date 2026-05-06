@@ -1,16 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 
-// Adicione os arquivos de música na pasta public/music/
-// e inclua os caminhos aqui:
+// Adicione os arquivos na pasta public/music/ e liste aqui:
 const TRACKS = [
   // '/music/faixa-01.mp3',
-  // '/music/faixa-02.mp3',
 ]
 
 function IconPlay() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true">
-      <polygon points="5 3 19 12 5 21 5 3" />
+      <polygon points="6 3 20 12 6 21 6 3" />
     </svg>
   )
 }
@@ -26,7 +24,7 @@ function IconPause() {
 
 function IconMusic() {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="15" height="15" aria-hidden="true">
       <path d="M9 18V5l12-2v13" />
       <circle cx="6" cy="18" r="3" />
       <circle cx="18" cy="16" r="3" />
@@ -34,32 +32,31 @@ function IconMusic() {
   )
 }
 
+// 'hidden' | 'visible' | 'leaving'
 export default function MusicPlayer() {
   const audioRef = useRef(null)
   const [playing, setPlaying] = useState(false)
-  const [showBalloon, setShowBalloon] = useState(false)
+  const [balloonState, setBalloonState] = useState('hidden')
   const [trackIndex, setTrackIndex] = useState(0)
-  const [balloonDismissed, setBalloonDismissed] = useState(false)
 
-  useEffect(() => {
-    if (balloonDismissed) return
-    const show = setTimeout(() => setShowBalloon(true), 1800)
-    return () => clearTimeout(show)
-  }, [balloonDismissed])
-
-  useEffect(() => {
-    if (!showBalloon) return
-    const hide = setTimeout(() => setShowBalloon(false), 6000)
-    return () => clearTimeout(hide)
-  }, [showBalloon])
-
-  function dismissBalloon() {
-    setShowBalloon(false)
-    setBalloonDismissed(true)
+  function dismiss() {
+    setBalloonState('leaving')
+    setTimeout(() => setBalloonState('hidden'), 320)
   }
 
+  useEffect(() => {
+    const show = setTimeout(() => setBalloonState('visible'), 1600)
+    return () => clearTimeout(show)
+  }, [])
+
+  useEffect(() => {
+    if (balloonState !== 'visible') return
+    const hide = setTimeout(dismiss, 6000)
+    return () => clearTimeout(hide)
+  }, [balloonState])
+
   function toggle() {
-    dismissBalloon()
+    if (balloonState === 'visible') dismiss()
     if (!TRACKS.length || !audioRef.current) return
     if (playing) {
       audioRef.current.pause()
@@ -79,40 +76,27 @@ export default function MusicPlayer() {
     audioRef.current.play().catch(() => {})
   }
 
-  const hasMusic = TRACKS.length > 0
-
   return (
     <div className="music-fab">
-      {showBalloon && (
-        <div className="music-balloon" role="status">
+      {balloonState !== 'hidden' && (
+        <div className={`music-balloon${balloonState === 'leaving' ? ' music-balloon--out' : ''}`} role="status">
           <IconMusic />
-          <span>Ouça música enquanto realiza sua compra</span>
-          <button
-            className="music-balloon-close"
-            onClick={dismissBalloon}
-            aria-label="Fechar"
-          >
-            ×
-          </button>
+          <span>Ouça música enquanto navega</span>
+          <button className="music-balloon-close" onClick={dismiss} aria-label="Fechar">×</button>
         </div>
       )}
 
       <button
-        className={`music-btn${playing ? ' music-btn--playing' : ''}${!hasMusic ? ' music-btn--disabled' : ''}`}
+        className={`music-btn${playing ? ' music-btn--playing' : ''}`}
         onClick={toggle}
         aria-label={playing ? 'Pausar música' : 'Tocar música'}
-        title={!hasMusic ? 'Em breve' : playing ? 'Pausar' : 'Tocar música'}
+        title={playing ? 'Pausar' : 'Tocar música'}
       >
         {playing ? <IconPause /> : <IconPlay />}
       </button>
 
-      {hasMusic && (
-        <audio
-          ref={audioRef}
-          src={TRACKS[trackIndex]}
-          onEnded={handleEnded}
-          preload="none"
-        />
+      {TRACKS.length > 0 && (
+        <audio ref={audioRef} src={TRACKS[trackIndex]} onEnded={handleEnded} preload="none" />
       )}
     </div>
   )
