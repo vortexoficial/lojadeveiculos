@@ -728,8 +728,8 @@ td a:hover {
 .footer-dev-logo {
   height: 18px;
   width: auto;
-  display: inline-block;
-  vertical-align: -10px;
+  display: block;
+  transform: translateY(4px);
 }
 
 .button {
