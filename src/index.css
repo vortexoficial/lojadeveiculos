@@ -682,22 +682,6 @@ td a:hover {
   padding: 0 18px !important;
 }
 
-.footer-dev {
-  text-align: center;
-  padding: 10px 0 16px;
-  font-size: 0.75rem;
-  color: var(--muted-2);
-}
-
-.footer-dev a {
-  color: var(--muted-2);
-  text-decoration: none;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  transition: color 0.15s;
-}
-
-.footer-dev a:hover { color: var(--orange); }
 
 .footer-bottom {
   border-top: 1px solid var(--line-soft);
@@ -714,6 +698,16 @@ td a:hover {
   font-size: 12px;
   color: var(--muted-2);
 }
+
+.footer-bottom-note a {
+  color: var(--orange);
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  transition: opacity 0.15s;
+}
+
+.footer-bottom-note a:hover { opacity: 0.8; }
 
 .button {
   display: inline-flex;
