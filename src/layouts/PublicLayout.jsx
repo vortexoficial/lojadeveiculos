@@ -223,7 +223,11 @@ function PublicLayout() {
 
         <div className="footer-bottom">
           <span>© {new Date().getFullYear()} {settings.store_name}. Todos os direitos reservados.</span>
-          <span className="footer-bottom-note">Desenvolvido por <a href="https://agenciafuturadesign.com" target="_blank" rel="noreferrer">FUTURADESIGN</a></span>
+          <span className="footer-bottom-note">Compra finalizada pelo WhatsApp, sem checkout online.</span>
+        </div>
+        <div className="footer-dev">
+          <hr className="footer-dev-line" />
+          <span>Desenvolvido por{' '}<a href="https://agenciafuturadesign.com" target="_blank" rel="noreferrer">FUTURADESIGN</a></span>
         </div>
       </footer>
     </div>

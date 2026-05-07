@@ -699,15 +699,32 @@ td a:hover {
   color: var(--muted-2);
 }
 
-.footer-bottom-note a {
+.footer-dev {
+  text-align: center;
+  padding-bottom: 24px;
+}
+
+.footer-dev-line {
+  border: none;
+  border-top: 1px solid var(--line-soft);
+  margin: 0 0 14px;
+}
+
+.footer-dev span {
+  font-size: 0.75rem;
+  color: var(--muted-2);
+}
+
+.footer-dev a {
   color: var(--orange);
   text-decoration: none;
   font-weight: 700;
   letter-spacing: 0.04em;
   transition: opacity 0.15s;
+  margin-left: 4px;
 }
 
-.footer-bottom-note a:hover { opacity: 0.8; }
+.footer-dev a:hover { opacity: 0.75; }
 
 .button {
   display: inline-flex;
