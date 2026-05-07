@@ -227,7 +227,9 @@ function PublicLayout() {
         </div>
         <div className="footer-dev">
           <hr className="footer-dev-line" />
-          <span>Desenvolvido por{' '}<a href="https://agenciafuturadesign.com" target="_blank" rel="noreferrer">FUTURADESIGN</a></span>
+          <span>Desenvolvido por{' '}<a href="https://agenciafuturadesign.com" target="_blank" rel="noreferrer" aria-label="Futura Design">
+            <img src="/logo-futura.webp" alt="Futura Design" className="footer-dev-logo" />
+          </a></span>
         </div>
       </footer>
     </div>
