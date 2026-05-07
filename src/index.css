@@ -682,6 +682,23 @@ td a:hover {
   padding: 0 18px !important;
 }
 
+.footer-dev {
+  text-align: center;
+  padding: 10px 0 16px;
+  font-size: 0.75rem;
+  color: var(--muted-2);
+}
+
+.footer-dev a {
+  color: var(--muted-2);
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  transition: color 0.15s;
+}
+
+.footer-dev a:hover { color: var(--orange); }
+
 .footer-bottom {
   border-top: 1px solid var(--line-soft);
   width: min(1180px, calc(100% - 48px));

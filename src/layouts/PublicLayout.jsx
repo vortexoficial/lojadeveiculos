@@ -225,6 +225,9 @@ function PublicLayout() {
           <span>© {new Date().getFullYear()} {settings.store_name}. Todos os direitos reservados.</span>
           <span className="footer-bottom-note">Compra finalizada pelo WhatsApp, sem checkout online.</span>
         </div>
+        <div className="footer-dev">
+          Desenvolvido por <a href="https://agenciafuturadesign.com" target="_blank" rel="noreferrer">FUTURADESIGN</a>
+        </div>
       </footer>
     </div>
   )
