@@ -83,6 +83,33 @@ begin
   end if;
 end $$;
 
+create table if not exists public.home_category_banners (
+  id uuid primary key default gen_random_uuid(),
+  slot integer not null unique check (slot between 1 and 4),
+  name text not null default '',
+  image_url text default '',
+  link_to text default '',
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
+);
+
+alter table public.home_category_banners
+  add column if not exists slot integer,
+  add column if not exists name text default '',
+  add column if not exists image_url text default '',
+  add column if not exists link_to text default '',
+  add column if not exists created_at timestamp with time zone default now(),
+  add column if not exists updated_at timestamp with time zone default now();
+
+update public.home_category_banners
+set
+  name = coalesce(name, ''),
+  image_url = coalesce(image_url, ''),
+  link_to = coalesce(link_to, '');
+
+create unique index if not exists home_category_banners_slot_unique
+on public.home_category_banners (slot);
+
 alter table public.store_settings
   add column if not exists promo_title text default 'Veiculos em destaque',
   add column if not exists promo_text text default 'Fale no WhatsApp e confira as oportunidades disponiveis hoje.';
@@ -311,6 +338,11 @@ create trigger set_home_banners_updated_at
 before update on public.home_banners
 for each row execute function public.set_updated_at();
 
+drop trigger if exists set_home_category_banners_updated_at on public.home_category_banners;
+create trigger set_home_category_banners_updated_at
+before update on public.home_category_banners
+for each row execute function public.set_updated_at();
+
 drop trigger if exists set_blog_posts_updated_at on public.blog_posts;
 create trigger set_blog_posts_updated_at
 before update on public.blog_posts
@@ -357,6 +389,7 @@ $$;
 alter table public.profiles enable row level security;
 alter table public.store_settings enable row level security;
 alter table public.home_banners enable row level security;
+alter table public.home_category_banners enable row level security;
 alter table public.categories enable row level security;
 alter table public.products enable row level security;
 alter table public.product_variants enable row level security;
@@ -397,6 +430,19 @@ using (is_active = true or public.is_admin());
 drop policy if exists "Admins manage home banners" on public.home_banners;
 create policy "Admins manage home banners"
 on public.home_banners for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+drop policy if exists "Public can read home category banners" on public.home_category_banners;
+create policy "Public can read home category banners"
+on public.home_category_banners for select
+to public
+using (true);
+
+drop policy if exists "Admins manage home category banners" on public.home_category_banners;
+create policy "Admins manage home category banners"
+on public.home_category_banners for all
 to authenticated
 using (public.is_admin())
 with check (public.is_admin());
@@ -517,6 +563,19 @@ on conflict (slug) do update
   set name = excluded.name,
       type = excluded.type,
       is_active = true;
+
+insert into home_category_banners (slot, name, image_url, link_to)
+values
+  (1, 'Carros', '/vehicle-car.svg', '/carros'),
+  (2, 'Motos', '/vehicle-moto.svg', '/motos'),
+  (3, 'Veiculos', '/vehicle-stock.svg', '/veiculos'),
+  (4, 'Ofertas', '/vehicle-offers.svg', '/ofertas?sort=promocoes')
+on conflict (slot) do update
+set
+  name = excluded.name,
+  image_url = excluded.image_url,
+  link_to = excluded.link_to,
+  updated_at = now();
 
 insert into store_settings (
   store_name,
