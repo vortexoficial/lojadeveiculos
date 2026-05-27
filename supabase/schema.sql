@@ -614,7 +614,7 @@ set
   is_featured = excluded.is_featured,
   updated_at = now();
 
-insert into blog_posts (title, slug, excerpt, content, cover_url, is_published, published_at)
+insert into blog_posts (title, slug, excerpt, content, cover_url, published, published_at)
 values
 (
   'Como escolher um seminovo com seguranca',
@@ -649,7 +649,7 @@ set title = excluded.title,
     excerpt = excluded.excerpt,
     content = excluded.content,
     cover_url = excluded.cover_url,
-    is_published = excluded.is_published,
+    published = excluded.published,
     published_at = excluded.published_at;
 
 
