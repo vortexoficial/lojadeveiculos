@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+﻿import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import ProductCard from './ProductCard.jsx'
 
 const GAP = 14
@@ -127,11 +127,11 @@ function ProductCarousel({ products = [], whatsappNumber = '' }) {
   return (
     <div className="product-carousel">
       {n > 1 ? (
-        <div className="product-carousel-controls" aria-label="Navegar produtos">
+        <div className="product-carousel-controls" aria-label="Navegar veiculos">
           <button
             className="product-carousel-control previous"
             type="button"
-            aria-label="Produtos anteriores"
+            aria-label="Veiculos anteriores"
             onClick={() => { setAnimated(true); setTrackIndex(p => p - perPage) }}
           >
             <ChevronIcon direction="previous" />
@@ -139,7 +139,7 @@ function ProductCarousel({ products = [], whatsappNumber = '' }) {
           <button
             className="product-carousel-control next"
             type="button"
-            aria-label="Próximos produtos"
+            aria-label="Proximos veiculos"
             onClick={() => { setAnimated(true); setTrackIndex(p => p + perPage) }}
           >
             <ChevronIcon direction="next" />

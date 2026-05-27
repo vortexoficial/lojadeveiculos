@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useConfirm } from '../../components/ConfirmModal.jsx'
 import CustomSelect from '../../components/CustomSelect.jsx'
 import FormStatus from '../../components/FormStatus.jsx'
@@ -93,7 +93,7 @@ function AdminCategories() {
   async function handleDelete(id) {
     const confirmed = await confirm({
       title: 'Excluir categoria?',
-      message: 'Produtos vinculados podem ficar sem categoria após essa remoção.',
+      message: 'Veiculos vinculados podem ficar sem categoria apos essa remocao.',
       confirmLabel: 'Excluir',
       tone: 'danger',
     })
@@ -112,7 +112,7 @@ function AdminCategories() {
     <section className="admin-page">
       <div className="admin-page-heading">
         <div>
-          <span className="eyebrow">Catálogo</span>
+          <span className="eyebrow">Catalogo</span>
           <h1>Categorias</h1>
         </div>
       </div>
@@ -130,7 +130,7 @@ function AdminCategories() {
                 <input
                   value={form.name}
                   onChange={(e) => updateField('name', e.target.value)}
-                  placeholder="Ex: Proteínas"
+                  placeholder="Ex: Sedans"
                   required
                 />
               </label>
@@ -161,7 +161,7 @@ function AdminCategories() {
               <FormStatus error={error} success={success} />
               <div className="form-actions">
                 <button className="button" type="submit" disabled={saving}>
-                  {saving ? 'Salvando…' : isEditing ? 'Salvar edição' : 'Criar categoria'}
+                  {saving ? 'Salvando...' : isEditing ? 'Salvar edicao' : 'Criar categoria'}
                 </button>
                 {isEditing ? (
                   <button className="button secondary" type="button" onClick={() => setForm(emptyCategory)}>

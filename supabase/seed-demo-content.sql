@@ -1,335 +1,101 @@
--- Conteudo demo para testar o dashboard e a loja.
--- Rode no SQL Editor do Supabase depois do fix-current-database.sql.
+﻿-- Digital Veiculos - Seed demo
+-- Cole no Supabase SQL Editor e execute.
 
-insert into public.categories (name, slug, type, is_active)
+insert into categories (name, slug, type, is_active)
 values
-  ('Combos', 'combos', 'suplemento', true),
-  ('Proteinas', 'proteinas', 'suplemento', true),
-  ('Creatinas', 'creatinas', 'suplemento', true),
-  ('Pre-treinos', 'pre-treinos', 'suplemento', true),
-  ('Snacks', 'snacks', 'suplemento', true),
-  ('Acessorios', 'acessorios', 'acessorio', true),
-  ('Vestuario', 'vestuario', 'vestuario', true)
-on conflict (slug) do update set
-  name = excluded.name,
-  type = excluded.type,
-  is_active = excluded.is_active;
+  ('Sedans', 'sedans', 'suplemento', true),
+  ('Hatches', 'hatches', 'suplemento', true),
+  ('SUVs', 'suvs', 'suplemento', true),
+  ('Picapes', 'picapes', 'suplemento', true),
+  ('Motos', 'motos', 'vestuario', true),
+  ('Acessorios automotivos', 'acessorios-automotivos', 'acessorio', true)
+on conflict (slug) do update
+  set name = excluded.name,
+      type = excluded.type,
+      is_active = true;
 
-update public.categories
-set is_active = false
-where slug in ('garrafas', 'xicaras');
+insert into store_settings (
+  store_name,
+  whatsapp_number,
+  logo_url,
+  default_message,
+  promo_title,
+  promo_text,
+  updated_at
+)
+values (
+  'Digital Veiculos',
+  '5511918334855',
+  '/novalogo.svg',
+  'Ola! Quero saber mais sobre os veiculos disponiveis.',
+  'Veiculos em destaque',
+  'Fale no WhatsApp e confira as oportunidades disponiveis hoje.',
+  now()
+);
 
-with existing_banner as (
-  select id
-  from public.home_banners
-  where title = 'Demo Horse Combo'
-  limit 1
+insert into products (
+  name, slug, type, category_id, subcategory,
+  description, brand, price, promo_price, stock,
+  image_url, gallery_urls, objective_tags,
+  is_active, is_featured, created_at, updated_at
+)
+values
+(
+  'Honda Civic EXL 2020',
+  'honda-civic-exl-2020',
+  'suplemento', (select id from categories where slug = 'sedans'), 'Sedan',
+  'Sedan automatico com acabamento premium, bom historico de manutencao, interior confortavel e pacote completo de seguranca. Consulte quilometragem, documentacao e disponibilidade pelo WhatsApp.',
+  'Honda', 112900, 109900, 1,
+  '/vehicle-car.svg', '[]'::jsonb, array['ganho_massa','saude_geral'],
+  true, true, now(), now()
 ),
-updated_banner as (
-  update public.home_banners
-  set
-    desktop_image_url = '/banners/horse-combo-desktop.jpeg',
-    mobile_image_url = '/banners/horse-combo-mobile.jpeg',
-    desktop_position = 'center center',
-    mobile_position = 'center center',
-    display_order = 1,
-    is_active = true,
-    updated_at = now()
-  where id in (select id from existing_banner)
-  returning id
-)
-insert into public.home_banners (
-  title,
-  desktop_image_url,
-  mobile_image_url,
-  desktop_position,
-  mobile_position,
-  display_order,
-  is_active
-)
-select
-  'Demo Horse Combo',
-  '/banners/horse-combo-desktop.jpeg',
-  '/banners/horse-combo-mobile.jpeg',
-  'center center',
-  'center center',
-  1,
-  true
-where not exists (select 1 from existing_banner);
-
-with existing_banner as (
-  select id
-  from public.home_banners
-  where title = 'Demo Horse Combo 2'
-  limit 1
+(
+  'Toyota Corolla XEi 2021',
+  'toyota-corolla-xei-2021',
+  'suplemento', (select id from categories where slug = 'sedans'), 'Sedan',
+  'Corolla automatico reconhecido por conforto, confiabilidade e liquidez. Ideal para familia e uso diario.',
+  'Toyota', 128900, null, 1,
+  '/vehicle-car.svg', '[]'::jsonb, array['ganho_massa','saude_geral'],
+  true, true, now(), now()
 ),
-updated_banner as (
-  update public.home_banners
-  set
-    desktop_image_url = '/banners/horse-combo-desktop.jpeg',
-    mobile_image_url = '/banners/horse-combo-mobile.jpeg',
-    desktop_position = 'center center',
-    mobile_position = 'center center',
-    display_order = 2,
-    is_active = true,
-    updated_at = now()
-  where id in (select id from existing_banner)
-  returning id
+(
+  'Chevrolet Onix LTZ Turbo 2023',
+  'chevrolet-onix-ltz-turbo-2023',
+  'suplemento', (select id from categories where slug = 'hatches'), 'Hatch',
+  'Hatch turbo economico, conectado e pratico para cidade. Consulte condicao, opcionais e formas de negociacao com a equipe.',
+  'Chevrolet', 82900, 79900, 1,
+  '/vehicle-car.svg', '[]'::jsonb, array['emagrecimento'],
+  true, true, now(), now()
+),
+(
+  'Jeep Compass Longitude 2022',
+  'jeep-compass-longitude-2022',
+  'suplemento', (select id from categories where slug = 'suvs'), 'SUV',
+  'SUV com posicao elevada de dirigir, acabamento sofisticado e otimo espaco interno. Ideal para quem busca conforto e presenca.',
+  'Jeep', 149900, 145900, 1,
+  '/vehicle-stock.svg', '[]'::jsonb, array['ganho_massa','saude_geral'],
+  true, true, now(), now()
+),
+(
+  'Fiat Toro Volcano 2022',
+  'fiat-toro-volcano-2022',
+  'suplemento', (select id from categories where slug = 'picapes'), 'Picape',
+  'Picape versatil para trabalho e lazer, com bom pacote de equipamentos e visual robusto. Atendimento direto para proposta e avaliacao de troca.',
+  'Fiat', 139900, null, 1,
+  '/vehicle-stock.svg', '[]'::jsonb, array['recuperacao'],
+  true, false, now(), now()
+),
+(
+  'Honda CG 160 Fan 2023',
+  'honda-cg-160-fan-2023',
+  'vestuario', (select id from categories where slug = 'motos'), 'Moto urbana',
+  'Moto economica e confiavel para rotina urbana, trabalho e deslocamentos diarios. Consulte documentacao e disponibilidade.',
+  'Honda', 16900, 15900, 1,
+  '/vehicle-moto.svg', '[]'::jsonb, array['emagrecimento','recuperacao'],
+  true, false, now(), now()
 )
-insert into public.home_banners (
-  title,
-  desktop_image_url,
-  mobile_image_url,
-  desktop_position,
-  mobile_position,
-  display_order,
-  is_active
-)
-select
-  'Demo Horse Combo 2',
-  '/banners/horse-combo-desktop.jpeg',
-  '/banners/horse-combo-mobile.jpeg',
-  'center center',
-  'center center',
-  2,
-  true
-where not exists (select 1 from existing_banner);
-
-insert into public.products (
-  name,
-  slug,
-  type,
-  category_id,
-  subcategory,
-  description,
-  brand,
-  price,
-  promo_price,
-  stock,
-  image_url,
-  gallery_urls,
-  is_active,
-  is_featured,
-  objective_tags
-) values (
-  'Combo Horse Forca Maxima',
-  'combo-horse-forca-maxima',
-  'suplemento',
-  (select id from public.categories where slug = 'combos'),
-  'Combo demo com whey, creatina e pre-treino para testar vitrine, produto e compra via WhatsApp.',
-  'Horse',
-  249.90,
-  199.99,
-  20,
-  '/banners/horse-combo-mobile.jpeg',
-  '["/banners/horse-combo-desktop.jpeg"]'::jsonb,
-  true,
-  true,
-  array['energia', 'ganho_massa']
-)
-on conflict (slug) do update set
-  name = excluded.name,
-  type = excluded.type,
-  category_id = excluded.category_id,
-  description = excluded.description,
-  brand = excluded.brand,
-  price = excluded.price,
-  promo_price = excluded.promo_price,
-  stock = excluded.stock,
-  image_url = excluded.image_url,
-  gallery_urls = excluded.gallery_urls,
-  is_active = excluded.is_active,
-  is_featured = excluded.is_featured,
-  objective_tags = excluded.objective_tags,
-  updated_at = now();
-
-insert into public.products (
-  name,
-  slug,
-  type,
-  category_id,
-  description,
-  brand,
-  price,
-  promo_price,
-  stock,
-  image_url,
-  gallery_urls,
-  is_active,
-  is_featured,
-  objective_tags
-) values
-  (
-    'Whey Protein Baunilha 900g',
-    'whey-protein-baunilha-900g',
-    'suplemento',
-    (select id from public.categories where slug = 'proteinas'),
-    'Whey',
-    'Produto demo para testar a vitrine com proteina sabor baunilha.',
-    'Pitbull',
-    159.90,
-    139.90,
-    18,
-    '/banners/horse-combo-mobile.jpeg',
-    '[]'::jsonb,
-    true,
-    true,
-    array['ganho_massa', 'recuperacao']
-  ),
-  (
-    'Creatina Monohidratada Power 300g',
-    'creatina-monohidratada-power-300g',
-    'suplemento',
-    (select id from public.categories where slug = 'creatinas'),
-    'Creatina',
-    'Creatina demo para testar produtos de performance.',
-    'Pitbull',
-    99.90,
-    89.90,
-    24,
-    null,
-    '[]'::jsonb,
-    true,
-    true,
-    array['energia', 'ganho_massa']
-  ),
-  (
-    'Pre Treino Nitro Laranja 300g',
-    'pre-treino-nitro-laranja-300g',
-    'suplemento',
-    (select id from public.categories where slug = 'pre-treinos'),
-    'Pre-treino',
-    'Pre treino demo para validar promocao e categorias.',
-    'Horse',
-    119.90,
-    104.90,
-    15,
-    null,
-    '[]'::jsonb,
-    true,
-    true,
-    array['energia']
-  ),
-  (
-    'Barra Proteica Chocolate 12un',
-    'barra-proteica-chocolate-12un',
-    'suplemento',
-    (select id from public.categories where slug = 'snacks'),
-    'Snacks',
-    'Caixa demo com barras proteicas para testar itens menores.',
-    'Pitbull',
-    79.90,
-    null,
-    30,
-    null,
-    '[]'::jsonb,
-    true,
-    true,
-    array['saude_geral']
-  ),
-  (
-    'Garrafa Shaker Pitbull 700ml',
-    'garrafa-shaker-pitbull-700ml',
-    'acessorio',
-    (select id from public.categories where slug = 'acessorios'),
-    'Garrafas',
-    'Garrafa demo para treino, academia e rotina diaria.',
-    'Pitbull',
-    39.90,
-    34.90,
-    35,
-    null,
-    '[]'::jsonb,
-    true,
-    true,
-    array['saude_geral']
-  ),
-  (
-    'Coqueteleira Inox Pitbull 800ml',
-    'coqueteleira-inox-pitbull-800ml',
-    'acessorio',
-    (select id from public.categories where slug = 'acessorios'),
-    'Garrafas',
-    'Coqueteleira demo de inox para testar acessorios premium.',
-    'Pitbull',
-    69.90,
-    59.90,
-    20,
-    null,
-    '[]'::jsonb,
-    true,
-    true,
-    array['saude_geral']
-  ),
-  (
-    'Xicara Pitbull Cafe Forte',
-    'xicara-pitbull-cafe-forte',
-    'acessorio',
-    (select id from public.categories where slug = 'acessorios'),
-    'Xicaras',
-    'Xicara demo para produtos de loja e presentes.',
-    'Pitbull',
-    29.90,
-    null,
-    40,
-    null,
-    '[]'::jsonb,
-    true,
-    true,
-    array['saude_geral']
-  ),
-  (
-    'Camiseta Dry Fit Pitbull Preta',
-    'camiseta-dry-fit-pitbull-preta',
-    'vestuario',
-    (select id from public.categories where slug = 'vestuario'),
-    'Camisetas',
-    'Camiseta demo dry fit para treino pesado.',
-    'Pitbull',
-    89.90,
-    79.90,
-    16,
-    null,
-    '[]'::jsonb,
-    true,
-    true,
-    array['energia']
-  ),
-  (
-    'Short Treino Pitbull Flex',
-    'short-treino-pitbull-flex',
-    'vestuario',
-    (select id from public.categories where slug = 'vestuario'),
-    'Shorts',
-    'Short demo confortavel para musculacao e corrida.',
-    'Pitbull',
-    74.90,
-    null,
-    22,
-    null,
-    '[]'::jsonb,
-    true,
-    true,
-    array['energia']
-  ),
-  (
-    'Mochila Pitbull Training',
-    'mochila-pitbull-training',
-    'acessorio',
-    (select id from public.categories where slug = 'acessorios'),
-    'Mochilas',
-    'Mochila demo para completar o visual da marca.',
-    'Pitbull',
-    49.90,
-    44.90,
-    28,
-    null,
-    '[]'::jsonb,
-    true,
-    true,
-    array['saude_geral']
-  )
-on conflict (slug) do update set
+on conflict (slug) do update
+set
   name = excluded.name,
   type = excluded.type,
   category_id = excluded.category_id,
@@ -341,63 +107,45 @@ on conflict (slug) do update set
   stock = excluded.stock,
   image_url = excluded.image_url,
   gallery_urls = excluded.gallery_urls,
+  objective_tags = excluded.objective_tags,
   is_active = excluded.is_active,
   is_featured = excluded.is_featured,
-  objective_tags = excluded.objective_tags,
   updated_at = now();
 
-insert into public.product_variants (
-  product_id,
-  variant_type,
-  name,
-  stock,
-  price_adjustment
+insert into blog_posts (title, slug, excerpt, content, cover_url, is_published, published_at)
+values
+(
+  'Como escolher um seminovo com seguranca',
+  'como-escolher-seminovo-com-seguranca',
+  'Veja pontos essenciais para avaliar procedencia, estado geral e documentacao antes de negociar.',
+  '<p>Antes de fechar negocio, avalie historico de manutencao, documentacao, estado de pneus, pintura, motor e cambio.</p><p>Na duvida, fale com a equipe e solicite mais detalhes do veiculo.</p>',
+  '', true, now()
+),
+(
+  'Documentacao necessaria para comprar um veiculo',
+  'documentacao-necessaria-para-comprar-veiculo',
+  'Confira os principais documentos e cuidados antes de fechar negocio.',
+  '<p>Antes da compra, confira documento do veiculo, debitos, multas, licenciamento, comunicacao de venda e dados do vendedor.</p><p>Uma conferencia cuidadosa evita atrasos e torna a transferencia mais tranquila.</p>',
+  '', true, now()
+),
+(
+  'Financiamento ou pagamento a vista',
+  'financiamento-ou-pagamento-a-vista',
+  'Entenda vantagens de cada caminho e escolha a melhor forma de negociar seu proximo veiculo.',
+  '<p>Pagamento a vista pode abrir margem de negociacao. Financiamento ajuda a preservar capital e organizar parcelas.</p><p>Compare taxas, entrada, prazo e custo total antes de decidir.</p>',
+  '', true, now()
+),
+(
+  'O que observar no test-drive',
+  'o-que-observar-no-test-drive',
+  'Veja sinais importantes durante a avaliacao pratica do veiculo.',
+  '<p>No test-drive, observe partida, ruidos, freios, alinhamento, cambio, suspensao, ar-condicionado e funcionamento dos comandos.</p><p>Tambem vale testar em baixa velocidade e em vias com diferentes pisos.</p>',
+  '', true, now()
 )
-select
-  p.id,
-  variant.variant_type,
-  variant.name,
-  variant.stock,
-  0
-from public.products p
-cross join (
-  values
-    ('combo', 'Chocolate + Creatina + Pre-treino', 10),
-    ('combo', 'Baunilha + Creatina + Pre-treino', 10)
-) as variant(variant_type, name, stock)
-where p.slug = 'combo-horse-forca-maxima'
-  and not exists (
-    select 1
-    from public.product_variants pv
-    where pv.product_id = p.id
-      and pv.variant_type = variant.variant_type
-      and pv.name = variant.name
-  );
-
-insert into public.blog_posts (
-  title,
-  slug,
-  excerpt,
-  content,
-  cover_url,
-  published,
-  published_at
-) values (
-  'Como montar um combo de suplementos para treinar forte',
-  'como-montar-combo-suplementos-treino-forte',
-  'Um artigo demo para testar o blog, capa e publicacao no site.',
-  '<p>Este e um artigo demo para validar o blog da loja.</p><p>Um combo de treino costuma combinar proteina, creatina e um pre-treino conforme rotina, objetivo e orientacao profissional.</p><p>Use este post para testar listagem, pagina interna e capa do blog.</p>',
-  '/banners/horse-combo-desktop.jpeg',
-  true,
-  now()
-)
-on conflict (slug) do update set
-  title = excluded.title,
-  excerpt = excluded.excerpt,
-  content = excluded.content,
-  cover_url = excluded.cover_url,
-  published = excluded.published,
-  published_at = excluded.published_at,
-  updated_at = now();
-
-notify pgrst, 'reload schema';
+on conflict (slug) do update
+set title = excluded.title,
+    excerpt = excluded.excerpt,
+    content = excluded.content,
+    cover_url = excluded.cover_url,
+    is_published = excluded.is_published,
+    published_at = excluded.published_at;

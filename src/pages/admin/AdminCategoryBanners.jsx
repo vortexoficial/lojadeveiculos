@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import Loading from '../../components/Loading.jsx'
 import { listHomeCategoryBanners, updateHomeCategoryBanner } from '../../services/homeCategoryBannersService.js'
 import { uploadStoreImage } from '../../services/storageService.js'
@@ -109,7 +109,7 @@ function SlotCard({ slot, onSaved }) {
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ex.: Suplementos"
+              placeholder="Ex.: Carros"
               disabled={saving}
             />
           </label>
@@ -118,7 +118,7 @@ function SlotCard({ slot, onSaved }) {
             <input
               value={linkTo}
               onChange={(e) => setLinkTo(e.target.value)}
-              placeholder="/suplementos"
+              placeholder="/carros"
               disabled={saving}
             />
           </label>
@@ -138,7 +138,7 @@ function SlotCard({ slot, onSaved }) {
             onClick={handleSave}
             disabled={saving || (!dirty && !file)}
           >
-            {saving ? 'Salvando…' : saved ? <><IcoCheck /> Salvo</> : 'Salvar'}
+            {saving ? 'Salvando...' : saved ? <><IcoCheck /> Salvo</> : 'Salvar'}
           </button>
         </div>
       </div>
@@ -171,7 +171,7 @@ function AdminCategoryBanners() {
           <span className="eyebrow">Home</span>
           <h1>Banners de Categoria</h1>
           <p className="admin-page-desc">
-            4 slots fixos na seção "Escolha sua categoria". Envie criativos prontos — nenhum texto é sobreposto pelo site.
+            4 slots fixos na secao "Escolha sua categoria". Envie criativos prontos; nenhum texto e sobreposto pelo site.
           </p>
         </div>
         {!loading && slots.length > 0 ? (
@@ -188,7 +188,7 @@ function AdminCategoryBanners() {
 
       {!loading && !error && slots.length === 0 ? (
         <div className="panel empty-panel">
-          Tabela não encontrada. Execute o SQL de configuração no Supabase.
+          Tabela nao encontrada. Execute o SQL de configuracao no Supabase.
         </div>
       ) : null}
 

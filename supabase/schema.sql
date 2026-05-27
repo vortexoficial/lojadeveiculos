@@ -1,4 +1,4 @@
--- Loja Online com Dashboard + Sugestão Alimentar
+﻿-- Digital Veiculos com Dashboard
 -- Rode este arquivo no SQL Editor do Supabase.
 
 create extension if not exists pgcrypto;
@@ -17,13 +17,13 @@ alter table public.profiles
 
 create table if not exists public.store_settings (
   id uuid primary key default gen_random_uuid(),
-  store_name text not null default 'Loja Online',
+  store_name text not null default 'Digital Veiculos',
   whatsapp_number text not null default '5500000000000',
   logo_url text,
   instagram_url text,
-  default_message text default 'Olá! Quero saber mais sobre os produtos da loja.',
-  promo_title text default 'Ofertas para treinar forte',
-  promo_text text default 'Fale no WhatsApp e confira suplementos, combos e vestuário disponíveis hoje.',
+  default_message text default 'Ola! Quero saber mais sobre os veiculos disponiveis.',
+  promo_title text default 'Veiculos em destaque',
+  promo_text text default 'Fale no WhatsApp e confira as oportunidades disponiveis hoje.',
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now()
 );
@@ -84,15 +84,15 @@ begin
 end $$;
 
 alter table public.store_settings
-  add column if not exists promo_title text default 'Ofertas para treinar forte',
-  add column if not exists promo_text text default 'Fale no WhatsApp e confira suplementos, combos e vestuário disponíveis hoje.';
+  add column if not exists promo_title text default 'Veiculos em destaque',
+  add column if not exists promo_text text default 'Fale no WhatsApp e confira as oportunidades disponiveis hoje.';
 
 alter table public.store_settings
-  add column if not exists store_name text default 'Loja Online',
+  add column if not exists store_name text default 'Digital Veiculos',
   add column if not exists whatsapp_number text default '5500000000000',
   add column if not exists logo_url text,
   add column if not exists instagram_url text,
-  add column if not exists default_message text default 'Ola! Quero saber mais sobre os produtos da loja.',
+  add column if not exists default_message text default 'Ola! Quero saber mais sobre os veiculos disponiveis.',
   add column if not exists created_at timestamp with time zone default now(),
   add column if not exists updated_at timestamp with time zone default now();
 
@@ -142,7 +142,7 @@ create table if not exists public.products (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   slug text unique,
-  type text not null check (type in ('suplemento', 'vestuario', 'acessorio', 'outro')),
+  type text not null check (type in ('suplemento', 'vestuario', 'acessorio', 'outro', 'carro', 'moto', 'suv', 'picape')),
   category_id uuid references public.categories(id) on delete set null,
   description text,
   brand text,
@@ -253,121 +253,6 @@ set
   stock = coalesce(stock, 0),
   price_adjustment = coalesce(price_adjustment, 0);
 
-create table if not exists public.foods (
-  id uuid primary key default gen_random_uuid(),
-  name text not null,
-  category text,
-  calories_per_100g numeric(10,2),
-  protein_per_100g numeric(10,2),
-  carbs_per_100g numeric(10,2),
-  fat_per_100g numeric(10,2),
-  is_active boolean default true
-);
-
-alter table public.foods
-  add column if not exists name text,
-  add column if not exists category text,
-  add column if not exists calories_per_100g numeric(10,2),
-  add column if not exists protein_per_100g numeric(10,2),
-  add column if not exists carbs_per_100g numeric(10,2),
-  add column if not exists fat_per_100g numeric(10,2),
-  add column if not exists is_active boolean default true;
-
-update public.foods
-set is_active = true
-where is_active is null;
-
-do $$
-begin
-  if exists (
-    select 1
-    from information_schema.columns
-    where table_schema = 'public'
-      and table_name = 'foods'
-      and column_name = 'active'
-  ) then
-    execute 'update public.foods set is_active = coalesce(is_active, active, true)';
-  end if;
-end $$;
-
-create table if not exists public.meal_templates (
-  id uuid primary key default gen_random_uuid(),
-  title text,
-  meal_type text check (meal_type in ('cafe_manha', 'almoco', 'lanche', 'jantar', 'ceia')),
-  goal text check (goal in ('emagrecer', 'manter', 'ganhar_massa')),
-  preference text check (preference in ('simples', 'economica', 'fitness', 'alta_proteina')),
-  description text,
-  items jsonb default '[]'::jsonb,
-  calories_estimate numeric(10,2),
-  protein_estimate numeric(10,2),
-  is_active boolean default true
-);
-
-alter table public.meal_templates
-  add column if not exists title text,
-  add column if not exists meal_type text,
-  add column if not exists goal text,
-  add column if not exists preference text,
-  add column if not exists description text,
-  add column if not exists items jsonb default '[]'::jsonb,
-  add column if not exists calories_estimate numeric(10,2),
-  add column if not exists protein_estimate numeric(10,2),
-  add column if not exists is_active boolean default true;
-
-update public.meal_templates
-set
-  items = coalesce(items, '[]'::jsonb),
-  is_active = coalesce(is_active, true);
-
-do $$
-begin
-  if exists (
-    select 1
-    from information_schema.columns
-    where table_schema = 'public'
-      and table_name = 'meal_templates'
-      and column_name = 'active'
-  ) then
-    execute 'update public.meal_templates set is_active = coalesce(is_active, active, true)';
-  end if;
-end $$;
-
-create table if not exists public.nutrition_suggestions (
-  id uuid primary key default gen_random_uuid(),
-  user_name text,
-  weight numeric(10,2),
-  height numeric(10,2),
-  age integer,
-  sex text,
-  goal text,
-  activity_level text,
-  meals_per_day integer,
-  restrictions text,
-  calculated_bmi numeric(10,2),
-  calculated_bmr numeric(10,2),
-  calculated_tdee numeric(10,2),
-  target_calories numeric(10,2),
-  suggestion jsonb,
-  created_at timestamp with time zone default now()
-);
-
-alter table public.nutrition_suggestions
-  add column if not exists user_name text,
-  add column if not exists weight numeric(10,2),
-  add column if not exists height numeric(10,2),
-  add column if not exists age integer,
-  add column if not exists sex text,
-  add column if not exists goal text,
-  add column if not exists activity_level text,
-  add column if not exists meals_per_day integer,
-  add column if not exists restrictions text,
-  add column if not exists calculated_bmi numeric(10,2),
-  add column if not exists calculated_bmr numeric(10,2),
-  add column if not exists calculated_tdee numeric(10,2),
-  add column if not exists target_calories numeric(10,2),
-  add column if not exists suggestion jsonb,
-  add column if not exists created_at timestamp with time zone default now();
-
 create table if not exists public.blog_posts (
   id uuid primary key default gen_random_uuid(),
   title text not null,
@@ -473,9 +358,6 @@ alter table public.home_banners enable row level security;
 alter table public.categories enable row level security;
 alter table public.products enable row level security;
 alter table public.product_variants enable row level security;
-alter table public.foods enable row level security;
-alter table public.meal_templates enable row level security;
-alter table public.nutrition_suggestions enable row level security;
 alter table public.blog_posts enable row level security;
 
 drop policy if exists "Users can read own profile" on public.profiles;
@@ -576,44 +458,8 @@ to authenticated
 using (public.is_admin())
 with check (public.is_admin());
 
-drop policy if exists "Public can read active foods" on public.foods;
-create policy "Public can read active foods"
-on public.foods for select
-to public
-using (is_active = true or public.is_admin());
 
-drop policy if exists "Admins manage foods" on public.foods;
-create policy "Admins manage foods"
-on public.foods for all
-to authenticated
-using (public.is_admin())
-with check (public.is_admin());
 
-drop policy if exists "Public can read active meal templates" on public.meal_templates;
-create policy "Public can read active meal templates"
-on public.meal_templates for select
-to public
-using (is_active = true or public.is_admin());
-
-drop policy if exists "Admins manage meal templates" on public.meal_templates;
-create policy "Admins manage meal templates"
-on public.meal_templates for all
-to authenticated
-using (public.is_admin())
-with check (public.is_admin());
-
-drop policy if exists "Anyone can create nutrition suggestions" on public.nutrition_suggestions;
-create policy "Anyone can create nutrition suggestions"
-on public.nutrition_suggestions for insert
-to anon, authenticated
-with check (true);
-
-drop policy if exists "Admins manage nutrition suggestions" on public.nutrition_suggestions;
-create policy "Admins manage nutrition suggestions"
-on public.nutrition_suggestions for all
-to authenticated
-using (public.is_admin())
-with check (public.is_admin());
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (
@@ -653,223 +499,158 @@ on storage.objects for delete
 to authenticated
 using (bucket_id = 'product-images' and public.is_admin());
 
-insert into public.store_settings (
+-- Digital Veiculos demo data
+-- Digital Veiculos - Seed demo
+-- Cole no Supabase SQL Editor e execute.
+
+insert into categories (name, slug, type, is_active)
+values
+  ('Sedans', 'sedans', 'suplemento', true),
+  ('Hatches', 'hatches', 'suplemento', true),
+  ('SUVs', 'suvs', 'suplemento', true),
+  ('Picapes', 'picapes', 'suplemento', true),
+  ('Motos', 'motos', 'vestuario', true),
+  ('Acessorios automotivos', 'acessorios-automotivos', 'acessorio', true)
+on conflict (slug) do update
+  set name = excluded.name,
+      type = excluded.type,
+      is_active = true;
+
+insert into store_settings (
   store_name,
   whatsapp_number,
+  logo_url,
   default_message,
   promo_title,
-  promo_text
+  promo_text,
+  updated_at
 )
-select
-  'Pitbull Suplementos',
-  '5500000000000',
-  'Ola! Quero saber mais sobre os produtos da Pitbull Suplementos.',
-  'Ofertas para treinar forte',
-  'Fale no WhatsApp e confira suplementos, combos e vestuario disponiveis hoje.'
-where not exists (select 1 from public.store_settings);
+values (
+  'Digital Veiculos',
+  '5511918334855',
+  '/novalogo.svg',
+  'Ola! Quero saber mais sobre os veiculos disponiveis.',
+  'Veiculos em destaque',
+  'Fale no WhatsApp e confira as oportunidades disponiveis hoje.',
+  now()
+);
 
-/*
-insert into public.store_settings (
-  id,
-  store_name,
-  whatsapp_number,
-  default_message,
-  promo_title,
-  promo_text
-) values (
-  '00000000-0000-0000-0000-000000000001',
-  'Pitbull Suplementos',
-  '5500000000000',
-  'Olá! Quero saber mais sobre os produtos da Pitbull Suplementos.',
-  'Ofertas para treinar forte',
-  'Fale no WhatsApp e confira suplementos, combos e vestuário disponíveis hoje.'
+insert into products (
+  name, slug, type, category_id, subcategory,
+  description, brand, price, promo_price, stock,
+  image_url, gallery_urls, objective_tags,
+  is_active, is_featured, created_at, updated_at
 )
-on conflict (id) do update set
-  store_name = excluded.store_name,
-  whatsapp_number = excluded.whatsapp_number,
-  default_message = excluded.default_message,
-  promo_title = excluded.promo_title,
-  promo_text = excluded.promo_text;
-*/
-
-insert into public.categories (name, slug, type, is_active) values
-  ('Proteínas', 'proteinas', 'suplemento', true),
-  ('Energia e treino', 'energia-e-treino', 'suplemento', true),
-  ('Camisetas personalizadas', 'camisetas-personalizadas', 'vestuario', true),
-  ('Acessórios', 'acessorios', 'acessorio', true)
-on conflict (slug) do update set
-  name = excluded.name,
-  type = excluded.type,
-  is_active = excluded.is_active;
-
-insert into public.foods (
-  name,
-  category,
-  calories_per_100g,
-  protein_per_100g,
-  carbs_per_100g,
-  fat_per_100g,
-  is_active
-) values
-  ('Frango grelhado', 'proteína', 165, 31, 0, 3.6, true),
-  ('Ovos', 'proteína', 143, 13, 1.1, 9.5, true),
-  ('Arroz cozido', 'carboidrato', 128, 2.5, 28, 0.2, true),
-  ('Feijão cozido', 'carboidrato', 76, 4.8, 13.6, 0.5, true),
-  ('Aveia', 'carboidrato', 389, 16.9, 66.3, 6.9, true),
-  ('Banana', 'fruta', 89, 1.1, 22.8, 0.3, true),
-  ('Batata doce', 'carboidrato', 86, 1.6, 20, 0.1, true),
-  ('Iogurte natural', 'proteína', 61, 3.5, 4.7, 3.3, true),
-  ('Pasta de amendoim', 'gordura', 588, 25, 20, 50, true),
-  ('Legumes cozidos', 'vegetais', 45, 2, 9, 0.2, true)
-on conflict do nothing;
-
-insert into public.meal_templates (
-  title,
-  meal_type,
-  goal,
-  preference,
-  description,
-  items,
-  calories_estimate,
-  protein_estimate,
-  is_active
-) values
-  (
-    'Café da manhã simples',
-    'cafe_manha',
-    'manter',
-    'simples',
-    'Ovos com banana e aveia em porções moderadas.',
-    '[{"food":"Ovos","portion":"2 unidades"},{"food":"Banana","portion":"1 unidade"},{"food":"Aveia","portion":"30 g"}]'::jsonb,
-    360,
-    20,
-    true
-  ),
-  (
-    'Almoço equilibrado',
-    'almoco',
-    'manter',
-    'simples',
-    'Arroz, feijão, frango grelhado e legumes.',
-    '[{"food":"Arroz cozido","portion":"100 g"},{"food":"Feijão cozido","portion":"80 g"},{"food":"Frango grelhado","portion":"120 g"},{"food":"Legumes cozidos","portion":"150 g"}]'::jsonb,
-    560,
-    42,
-    true
-  ),
-  (
-    'Lanche alta proteína',
-    'lanche',
-    'ganhar_massa',
-    'alta_proteina',
-    'Iogurte natural com aveia e pasta de amendoim.',
-    '[{"food":"Iogurte natural","portion":"170 g"},{"food":"Aveia","portion":"30 g"},{"food":"Pasta de amendoim","portion":"15 g"}]'::jsonb,
-    330,
-    20,
-    true
-  ),
-  (
-    'Jantar fitness',
-    'jantar',
-    'emagrecer',
-    'fitness',
-    'Frango grelhado com batata doce e legumes.',
-    '[{"food":"Frango grelhado","portion":"120 g"},{"food":"Batata doce","portion":"90 g"},{"food":"Legumes cozidos","portion":"150 g"}]'::jsonb,
-    390,
-    38,
-    true
-  ),
-  (
-    'Ceia prática',
-    'ceia',
-    'manter',
-    'simples',
-    'Iogurte natural com fruta.',
-    '[{"food":"Iogurte natural","portion":"170 g"},{"food":"Banana","portion":"1 unidade"}]'::jsonb,
-    210,
-    9,
-    true
-  )
-on conflict do nothing;
-
-insert into public.products (
-  name,
-  slug,
-  type,
-  category_id,
-  description,
-  brand,
-  price,
-  promo_price,
-  stock,
-  is_active,
-  is_featured,
-  objective_tags
-) values
-  (
-    'Whey Protein Exemplo',
-    'whey-protein-exemplo',
-    'suplemento',
-    (select id from public.categories where slug = 'proteinas'),
-    'Suplemento proteico para complementar a ingestão diária de proteínas. Uso informativo no rótulo do fabricante.',
-    'Marca Exemplo',
-    149.90,
-    129.90,
-    20,
-    true,
-    true,
-    array['ganho_massa', 'recuperacao']
-  ),
-  (
-    'Pré-treino Exemplo',
-    'pre-treino-exemplo',
-    'suplemento',
-    (select id from public.categories where slug = 'energia-e-treino'),
-    'Produto voltado para energia e foco no treino. Consulte o rótulo e evite uso sem orientação em caso de restrições.',
-    'Marca Exemplo',
-    99.90,
-    null,
-    15,
-    true,
-    true,
-    array['energia']
-  ),
-  (
-    'Camiseta Treino Personalizada',
-    'camiseta-treino-personalizada',
-    'vestuario',
-    (select id from public.categories where slug = 'camisetas-personalizadas'),
-    'Camiseta leve para treino com personalização sob consulta pelo WhatsApp.',
-    'Coleção Loja',
-    79.90,
-    null,
-    30,
-    true,
-    true,
-    array[]::text[]
-  )
-on conflict (slug) do update set
+values
+(
+  'Honda Civic EXL 2020',
+  'honda-civic-exl-2020',
+  'suplemento', (select id from categories where slug = 'sedans'), 'Sedan',
+  'Sedan automatico com acabamento premium, bom historico de manutencao, interior confortavel e pacote completo de seguranca. Consulte quilometragem, documentacao e disponibilidade pelo WhatsApp.',
+  'Honda', 112900, 109900, 1,
+  '/vehicle-car.svg', '[]'::jsonb, array['ganho_massa','saude_geral'],
+  true, true, now(), now()
+),
+(
+  'Toyota Corolla XEi 2021',
+  'toyota-corolla-xei-2021',
+  'suplemento', (select id from categories where slug = 'sedans'), 'Sedan',
+  'Corolla automatico reconhecido por conforto, confiabilidade e liquidez. Ideal para familia e uso diario.',
+  'Toyota', 128900, null, 1,
+  '/vehicle-car.svg', '[]'::jsonb, array['ganho_massa','saude_geral'],
+  true, true, now(), now()
+),
+(
+  'Chevrolet Onix LTZ Turbo 2023',
+  'chevrolet-onix-ltz-turbo-2023',
+  'suplemento', (select id from categories where slug = 'hatches'), 'Hatch',
+  'Hatch turbo economico, conectado e pratico para cidade. Consulte condicao, opcionais e formas de negociacao com a equipe.',
+  'Chevrolet', 82900, 79900, 1,
+  '/vehicle-car.svg', '[]'::jsonb, array['emagrecimento'],
+  true, true, now(), now()
+),
+(
+  'Jeep Compass Longitude 2022',
+  'jeep-compass-longitude-2022',
+  'suplemento', (select id from categories where slug = 'suvs'), 'SUV',
+  'SUV com posicao elevada de dirigir, acabamento sofisticado e otimo espaco interno. Ideal para quem busca conforto e presenca.',
+  'Jeep', 149900, 145900, 1,
+  '/vehicle-stock.svg', '[]'::jsonb, array['ganho_massa','saude_geral'],
+  true, true, now(), now()
+),
+(
+  'Fiat Toro Volcano 2022',
+  'fiat-toro-volcano-2022',
+  'suplemento', (select id from categories where slug = 'picapes'), 'Picape',
+  'Picape versatil para trabalho e lazer, com bom pacote de equipamentos e visual robusto. Atendimento direto para proposta e avaliacao de troca.',
+  'Fiat', 139900, null, 1,
+  '/vehicle-stock.svg', '[]'::jsonb, array['recuperacao'],
+  true, false, now(), now()
+),
+(
+  'Honda CG 160 Fan 2023',
+  'honda-cg-160-fan-2023',
+  'vestuario', (select id from categories where slug = 'motos'), 'Moto urbana',
+  'Moto economica e confiavel para rotina urbana, trabalho e deslocamentos diarios. Consulte documentacao e disponibilidade.',
+  'Honda', 16900, 15900, 1,
+  '/vehicle-moto.svg', '[]'::jsonb, array['emagrecimento','recuperacao'],
+  true, false, now(), now()
+)
+on conflict (slug) do update
+set
   name = excluded.name,
   type = excluded.type,
   category_id = excluded.category_id,
+  subcategory = excluded.subcategory,
   description = excluded.description,
   brand = excluded.brand,
   price = excluded.price,
   promo_price = excluded.promo_price,
   stock = excluded.stock,
+  image_url = excluded.image_url,
+  gallery_urls = excluded.gallery_urls,
+  objective_tags = excluded.objective_tags,
   is_active = excluded.is_active,
   is_featured = excluded.is_featured,
-  objective_tags = excluded.objective_tags;
+  updated_at = now();
 
-insert into public.product_variants (product_id, variant_type, name, stock, price_adjustment)
-select p.id, 'sabor', variant.name, variant.stock, 0
-from public.products p
-cross join (values ('Baunilha', 8), ('Chocolate', 12)) as variant(name, stock)
-where p.slug = 'whey-protein-exemplo'
-on conflict do nothing;
+insert into blog_posts (title, slug, excerpt, content, cover_url, is_published, published_at)
+values
+(
+  'Como escolher um seminovo com seguranca',
+  'como-escolher-seminovo-com-seguranca',
+  'Veja pontos essenciais para avaliar procedencia, estado geral e documentacao antes de negociar.',
+  '<p>Antes de fechar negocio, avalie historico de manutencao, documentacao, estado de pneus, pintura, motor e cambio.</p><p>Na duvida, fale com a equipe e solicite mais detalhes do veiculo.</p>',
+  '', true, now()
+),
+(
+  'Documentacao necessaria para comprar um veiculo',
+  'documentacao-necessaria-para-comprar-veiculo',
+  'Confira os principais documentos e cuidados antes de fechar negocio.',
+  '<p>Antes da compra, confira documento do veiculo, debitos, multas, licenciamento, comunicacao de venda e dados do vendedor.</p><p>Uma conferencia cuidadosa evita atrasos e torna a transferencia mais tranquila.</p>',
+  '', true, now()
+),
+(
+  'Financiamento ou pagamento a vista',
+  'financiamento-ou-pagamento-a-vista',
+  'Entenda vantagens de cada caminho e escolha a melhor forma de negociar seu proximo veiculo.',
+  '<p>Pagamento a vista pode abrir margem de negociacao. Financiamento ajuda a preservar capital e organizar parcelas.</p><p>Compare taxas, entrada, prazo e custo total antes de decidir.</p>',
+  '', true, now()
+),
+(
+  'O que observar no test-drive',
+  'o-que-observar-no-test-drive',
+  'Veja sinais importantes durante a avaliacao pratica do veiculo.',
+  '<p>No test-drive, observe partida, ruidos, freios, alinhamento, cambio, suspensao, ar-condicionado e funcionamento dos comandos.</p><p>Tambem vale testar em baixa velocidade e em vias com diferentes pisos.</p>',
+  '', true, now()
+)
+on conflict (slug) do update
+set title = excluded.title,
+    excerpt = excluded.excerpt,
+    content = excluded.content,
+    cover_url = excluded.cover_url,
+    is_published = excluded.is_published,
+    published_at = excluded.published_at;
 
-insert into public.product_variants (product_id, variant_type, name, stock, price_adjustment)
-select p.id, 'tamanho', variant.name, variant.stock, 0
-from public.products p
-cross join (values ('P', 8), ('M', 10), ('G', 12)) as variant(name, stock)
-where p.slug = 'camiseta-treino-personalizada'
-on conflict do nothing;
+
+

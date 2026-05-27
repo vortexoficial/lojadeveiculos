@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Loading from '../../components/Loading.jsx'
 import { getDashboardSummary } from '../../services/dashboardService.js'
@@ -67,7 +67,7 @@ function VisitorBadge({ icon, label, value }) {
   return (
     <div className="dash-visitor-badge">
       <div className="dash-visitor-icon">{icon}</div>
-      <strong className="dash-visitor-value">{value ?? '—'}</strong>
+      <strong className="dash-visitor-value">{value ?? '-'}</strong>
       <span className="dash-visitor-label">{label}</span>
     </div>
   )
@@ -81,7 +81,7 @@ function DashCard({ icon, label, value, to, accent }) {
         <strong className="dash-card-value">{value}</strong>
         <span className="dash-card-label">{label}</span>
       </div>
-      {to ? <Link className="dash-card-link" to={to}>Gerenciar →</Link> : null}
+      {to ? <Link className="dash-card-link" to={to}>Gerenciar</Link> : null}
     </article>
   )
 }
@@ -108,7 +108,7 @@ function AdminDashboard() {
       <div className="admin-page-heading">
         <div>
           <span className="eyebrow">Dashboard</span>
-          <h1>Visão geral</h1>
+          <h1>Visao geral</h1>
         </div>
         <div className="admin-page-heading-actions">
           <a className="button secondary dashboard-store-button" href="/" target="_blank" rel="noreferrer">
@@ -124,10 +124,10 @@ function AdminDashboard() {
         <div className="dash-analytics-header">
           <div>
             <span className="eyebrow">Analytics</span>
-            <h2 className="dash-analytics-title">Visitantes únicos</h2>
+            <h2 className="dash-analytics-title">Visitantes unicos</h2>
           </div>
           {!hasVisitorData ? (
-            <span className="dash-analytics-pill">Não configurado</span>
+            <span className="dash-analytics-pill">Nao configurado</span>
           ) : null}
         </div>
         <div className="dash-visitor-row">
@@ -144,9 +144,9 @@ function AdminDashboard() {
 
       {summary ? (
         <div className="dash-content-section">
-          <span className="eyebrow">Conteúdo da loja</span>
+          <span className="eyebrow">Conteudo da loja</span>
           <div className="dash-grid">
-            <DashCard icon={<IcoBox />} label="Produtos" value={summary.products} to="/admin/produtos" accent="orange" />
+            <DashCard icon={<IcoBox />} label="Veiculos" value={summary.products} to="/admin/veiculos" accent="orange" />
             <DashCard icon={<IcoTag />} label="Categorias" value={summary.categories} to="/admin/categorias" accent="blue" />
             <DashCard icon={<IcoImage />} label="Banners" value={summary.banners} to="/admin/banners" accent="green" />
             <DashCard icon={<IcoPost />} label="Artigos do blog" value={summary.posts} to="/admin/blog" accent="purple" />

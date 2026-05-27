@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { Link, useOutletContext } from 'react-router-dom'
 import BenefitGrid from '../../components/BenefitGrid.jsx'
 import EmptyState from '../../components/EmptyState.jsx'
@@ -68,7 +68,7 @@ function Home() {
         <div className="section-heading">
           <div>
             <span className="eyebrow">Categorias</span>
-            <h2>Escolha sua categoria</h2>
+            <h2>Escolha seu veiculo</h2>
           </div>
         </div>
         {categoryBanners.length > 0 ? (
@@ -77,7 +77,7 @@ function Home() {
               <Link
                 key={slot.id}
                 className="cat-home-item"
-                to={slot.link_to || '/produtos'}
+                to={slot.link_to || '/veiculos'}
                 aria-label={slot.name}
               >
                 {slot.image_url ? (
@@ -90,21 +90,21 @@ function Home() {
           </div>
         ) : (
           <div className="category-grid premium-categories">
-            <Link className="category-link category-featured" to="/suplementos" style={{ '--cat-img': 'url(/cat-suplementos.webp)' }}>
-              <strong>Suplementos</strong>
-              <span>Whey, creatina, pré-treino e mais</span>
+            <Link className="category-link category-featured" to="/carros" style={{ '--cat-img': 'url(/vehicle-car.svg)' }}>
+              <strong>Carros</strong>
+              <span>Sedans, hatches, SUVs e mais</span>
             </Link>
-            <Link className="category-link category-featured" to="/vestuario" style={{ '--cat-img': 'url(/cat-vestuario.webp)' }}>
-              <strong>Vestuário</strong>
-              <span>Vista a força da Pitbull</span>
+            <Link className="category-link category-featured" to="/motos" style={{ '--cat-img': 'url(/vehicle-moto.svg)' }}>
+              <strong>Motos</strong>
+              <span>Modelos selecionados para sua rotina</span>
             </Link>
-            <Link className="category-link category-featured" to="/produtos" style={{ '--cat-img': 'url(/cat-produtos.webp)' }}>
-              <strong>Produtos</strong>
-              <span>Toda a linha disponível</span>
+            <Link className="category-link category-featured" to="/veiculos" style={{ '--cat-img': 'url(/vehicle-stock.svg)' }}>
+              <strong>Veiculos</strong>
+              <span>Toda a frota disponivel</span>
             </Link>
-            <Link className="category-link category-featured" to="/produtos?sort=promocoes" style={{ '--cat-img': 'url(/cat-promocoes.webp)' }}>
+            <Link className="category-link category-featured" to="/ofertas?sort=promocoes" style={{ '--cat-img': 'url(/vehicle-offers.svg)' }}>
               <strong>Ofertas</strong>
-              <span>Combos e promoções ativas</span>
+              <span>Oportunidades em destaque</span>
             </Link>
           </div>
         )}
@@ -114,9 +114,9 @@ function Home() {
         <div className="section-heading">
           <div>
             <span className="eyebrow">Vitrine</span>
-            <h2>Produtos em destaque</h2>
+            <h2>Veiculos em destaque</h2>
           </div>
-          <Link to="/produtos">Ver todos</Link>
+          <Link to="/veiculos">Ver todos</Link>
         </div>
 
         {loading ? <Loading /> : null}
@@ -124,7 +124,7 @@ function Home() {
         {!loading && !products.length ? (
           <EmptyState
             title="Nenhum destaque cadastrado"
-            message="Ative produtos como destaque no painel administrativo."
+            message="Ative veiculos como destaque no painel administrativo."
           />
         ) : null}
         <ProductCarousel products={products} whatsappNumber={settings.whatsapp_number} />
@@ -133,11 +133,11 @@ function Home() {
       {promos.length ? (
         <section className="promo-band">
           <div>
-            <span className="eyebrow">Promoções</span>
+            <span className="eyebrow">Ofertas</span>
             <h2>{settings.promo_title}</h2>
             <p>{settings.promo_text}</p>
           </div>
-          <Link className="button" to="/produtos?sort=promocoes">
+          <Link className="button" to="/ofertas?sort=promocoes">
             Ver ofertas
           </Link>
         </section>
@@ -147,8 +147,8 @@ function Home() {
         <div>
           <div className="section-heading">
             <div>
-              <span className="eyebrow">Suplementos</span>
-              <h2>Para quem treina forte</h2>
+              <span className="eyebrow">Carros</span>
+              <h2>Carros para todos os estilos</h2>
             </div>
           </div>
           <div className="product-grid small-grid">
@@ -164,8 +164,8 @@ function Home() {
         <div>
           <div className="section-heading">
             <div>
-              <span className="eyebrow">Vestuário</span>
-              <h2>Vista a força</h2>
+              <span className="eyebrow">Motos</span>
+              <h2>Motos em destaque</h2>
             </div>
           </div>
           <div className="product-grid small-grid">
@@ -185,7 +185,7 @@ function Home() {
           <div className="section-heading">
             <div>
               <span className="eyebrow">Blog</span>
-              <h2>Últimos artigos</h2>
+              <h2>Ultimos artigos</h2>
             </div>
             <Link to="/blog">Ver todos</Link>
           </div>
@@ -212,20 +212,20 @@ function Home() {
       <section className="content-section muted-section">
         <div className="section-heading">
           <div>
-            <span className="eyebrow">Benefícios</span>
-            <h2>Compra simples, visual forte e atendimento direto</h2>
+            <span className="eyebrow">Diferenciais</span>
+            <h2>Compra simples, vitrine clara e atendimento direto</h2>
           </div>
         </div>
         <BenefitGrid />
       </section>
 
       <section className="final-cta">
-        <span className="eyebrow">Pitbull Suplementos</span>
-        <h2>Sua evolução começa com atitude.</h2>
-        <p>Chame no WhatsApp e encontre o produto certo para sua rotina.</p>
+        <span className="eyebrow">Digital Veiculos</span>
+        <h2>Seu proximo veiculo com atendimento direto.</h2>
+        <p>Chame no WhatsApp e encontre o veiculo certo para sua rotina.</p>
         <a
           className="button whatsapp-button"
-          href={`https://wa.me/${settings.whatsapp_number}?text=${encodeURIComponent(settings.default_message || 'Olá! Quero comprar na Pitbull Suplementos.')}`}
+          href={`https://wa.me/${settings.whatsapp_number}?text=${encodeURIComponent(settings.default_message || 'Ola! Quero saber mais sobre os veiculos da Digital Veiculos.')}`}
           target="_blank"
           rel="noreferrer"
         >

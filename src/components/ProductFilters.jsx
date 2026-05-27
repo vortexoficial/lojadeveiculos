@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { PRODUCT_TYPES } from '../data/options.js'
 
 const sortOptions = [
   { value: 'recentes', label: 'Mais recentes' },
-  { value: 'menor_preco', label: 'Menor preço' },
-  { value: 'maior_preco', label: 'Maior preço' },
-  { value: 'promocoes', label: 'Promoções' },
+  { value: 'menor_preco', label: 'Menor preco' },
+  { value: 'maior_preco', label: 'Maior preco' },
+  { value: 'promocoes', label: 'Ofertas' },
 ]
 
 function FilterIcon() {
@@ -67,7 +67,7 @@ function ProductFilters({
 
   const categoryOptions = useMemo(
     () => [
-      { value: '', label: 'Todas categorias' },
+      { value: '', label: 'Todas as categorias' },
       ...categories.map((category) => ({
         value: category.id,
         label: category.name,
@@ -145,7 +145,7 @@ function ProductFilters({
               <FilterIcon />
               <strong>Filtros</strong>
               <button type="button" aria-label="Fechar filtros" onClick={() => setOpen(false)}>
-                ✕
+                X
               </button>
             </header>
 
@@ -153,7 +153,7 @@ function ProductFilters({
               {showSearch ? (
                 <DrawerSection title="Busca" defaultOpen>
                   <label className="filter-search-field">
-                    Produto ou marca
+                    Veiculo ou marca
                     <div className="filter-search-wrap">
                       <svg className="filter-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                         <circle cx="11" cy="11" r="7" />
@@ -163,7 +163,7 @@ function ProductFilters({
                         type="search"
                         value={filters.search || ''}
                         onChange={(event) => updateFilter('search', event.target.value)}
-                        placeholder="Digite para buscar…"
+                        placeholder="Digite para buscar..."
                       />
                     </div>
                   </label>

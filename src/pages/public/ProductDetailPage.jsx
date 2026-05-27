@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { Link, useOutletContext, useParams } from 'react-router-dom'
 import CheckoutModal from '../../components/CheckoutModal.jsx'
 import EmptyState from '../../components/EmptyState.jsx'
@@ -47,10 +47,10 @@ function ProductDetailPage() {
     loadProduct()
   }, [slug])
 
-  const productUrl = `${window.location.origin}/produto/${slug}`
+  const productUrl = `${window.location.origin}/veiculo/${slug}`
   const questionLink = createWhatsappLink(
     settings.whatsapp_number,
-    `Olá! Tenho uma dúvida sobre o produto: ${product?.name || ''}. Link: ${productUrl}`,
+    `Ola! Tenho uma duvida sobre o veiculo: ${product?.name || ''}. Link: ${productUrl}`,
   )
   const gallery = useMemo(
     () => [product?.image_url, ...(product?.gallery_urls || [])].filter(Boolean),
@@ -63,9 +63,9 @@ function ProductDetailPage() {
     return (
       <main className="page">
         <EmptyState
-          title="Produto não encontrado"
-          message="Confira se o link está correto ou volte para a lista de produtos."
-          action={<Link to="/produtos">Ver produtos</Link>}
+          title="Veiculo nao encontrado"
+          message="Confira se o link esta correto ou volte para a lista de veiculos."
+          action={<Link to="/veiculos">Ver veiculos</Link>}
         />
       </main>
     )
@@ -89,7 +89,7 @@ function ProductDetailPage() {
             <span className="tag">{getProductTypeLabel(product.type)}</span>
             {product.category ? <span className="tag">{product.category.name}</span> : null}
             {product.subcategory ? <span className="tag">{product.subcategory}</span> : null}
-            {product.promo_price ? <span className="tag hot">Promoção</span> : null}
+            {product.promo_price ? <span className="tag hot">Oferta</span> : null}
           </div>
           <h1>{product.name}</h1>
           {product.brand ? <p className="muted-text">Marca: {product.brand}</p> : null}
@@ -100,25 +100,25 @@ function ProductDetailPage() {
             <strong>{formatCurrency(product.promo_price || product.price)}</strong>
           </div>
           <p>{product.description}</p>
-          <p className="stock-line">Estoque disponível: {product.stock}</p>
+          <p className="stock-line">Disponibilidade: {product.stock}</p>
 
           {product.type === 'suplemento' ? (
             <div className="info-box">
-              <strong>Uso informativo</strong>
-              <p>Consulte o rótulo do fabricante. Suplementos não substituem alimentação equilibrada.</p>
+              <strong>Detalhes do veiculo</strong>
+              <p>Consulte ano, versao, quilometragem, documentacao e disponibilidade pelo atendimento.</p>
             </div>
           ) : null}
 
           {product.type === 'vestuario' ? (
             <div className="info-box">
-              <strong>Vestuário personalizado</strong>
-              <p>Confira tamanhos, cores e personalização disponível pelo atendimento.</p>
+              <strong>Atendimento personalizado</strong>
+              <p>Confira condicao, cor, opcionais e formas de negociacao pelo atendimento.</p>
             </div>
           ) : null}
 
           {product.variants?.length ? (
             <div>
-              <h2>Variações</h2>
+              <h2>Versoes e opcionais</h2>
               <div className="variant-list">
                 {product.variants.map((variant) => (
                   <span key={variant.id} className="tag">
@@ -135,11 +135,11 @@ function ProductDetailPage() {
               type="button"
               onClick={() => setCheckoutOpen(true)}
             >
-              Comprar
+              Tenho interesse
             </button>
             {questionLink ? (
               <a className="button secondary" href={questionLink} target="_blank" rel="noreferrer">
-                Tirar dúvida
+                Tirar duvida
               </a>
             ) : null}
           </div>
@@ -159,7 +159,7 @@ function ProductDetailPage() {
           <div className="section-heading">
             <div>
               <span className="eyebrow">Relacionados</span>
-              <h2>Você também pode curtir</h2>
+              <h2>Voce tambem pode se interessar</h2>
             </div>
           </div>
           <div className="product-grid">

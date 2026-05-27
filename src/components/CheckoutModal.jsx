@@ -1,28 +1,28 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { formatCurrency } from '../utils/formatters.js'
 
 const FALLBACK_WHATSAPP = '5511918334855'
 
 function buildOrderMessage(product, form) {
   const price = product.promo_price || product.price
-  const comp = form.complemento ? ` — ${form.complemento}` : ''
+  const comp = form.complemento ? ` - ${form.complemento}` : ''
 
   return [
-    `🛒 *PEDIDO — Pitbull Suplementos*`,
+    `*INTERESSE - Digital Veiculos*`,
     ``,
-    `*Produto:* ${product.name}`,
-    `*Valor:* ${formatCurrency(price)}`,
+    `*Veiculo:* ${product.name}`,
+    `*Valor anunciado:* ${formatCurrency(price)}`,
     ``,
-    `*─── Dados do Cliente ───*`,
+    `*Dados para atendimento*`,
     `*Nome:* ${form.nome}`,
     `*Telefone:* ${form.telefone}`,
     ``,
-    `*─── Endereço de Entrega ───*`,
+    `*Localizacao para atendimento*`,
     `${form.rua}, ${form.numero}${comp}`,
-    `${form.bairro} — ${form.cidade}/${form.estado.toUpperCase()}`,
+    `${form.bairro} - ${form.cidade}/${form.estado.toUpperCase()}`,
     `CEP: ${form.cep}`,
     ``,
-    `Olá! Gostaria de finalizar meu pedido. 😊`,
+    `Ola! Gostaria de saber mais detalhes, disponibilidade e formas de negociacao.`,
   ].join('\n')
 }
 
@@ -61,7 +61,7 @@ function CheckoutModal({ product, whatsappNumber, onClose }) {
 
         <div className="checkout-modal-header">
           <div className="checkout-modal-product">
-            <span className="eyebrow">Finalizar compra</span>
+            <span className="eyebrow">Solicitar atendimento</span>
             <h2 className="checkout-modal-title">{product.name}</h2>
             <span className="checkout-modal-price">{formatCurrency(price)}</span>
           </div>
@@ -85,7 +85,7 @@ function CheckoutModal({ product, whatsappNumber, onClose }) {
                 value={form.nome}
                 onChange={handleChange}
                 required
-                placeholder="João Silva"
+                placeholder="Joao Silva"
                 autoComplete="name"
               />
             </label>
@@ -103,7 +103,7 @@ function CheckoutModal({ product, whatsappNumber, onClose }) {
             </label>
           </div>
 
-          <p className="checkout-section-label">Endereço de entrega</p>
+          <p className="checkout-section-label">Localizacao</p>
 
           <div className="checkout-row checkout-row-addr">
             <label className="checkout-field checkout-field-cep">
@@ -130,7 +130,7 @@ function CheckoutModal({ product, whatsappNumber, onClose }) {
               />
             </label>
             <label className="checkout-field checkout-field-num">
-              <span>Número</span>
+              <span>Numero</span>
               <input
                 name="numero"
                 value={form.numero}
@@ -158,7 +158,7 @@ function CheckoutModal({ product, whatsappNumber, onClose }) {
                 value={form.bairro}
                 onChange={handleChange}
                 required
-                placeholder="Jardim América"
+                placeholder="Jardim America"
               />
             </label>
           </div>
@@ -171,7 +171,7 @@ function CheckoutModal({ product, whatsappNumber, onClose }) {
                 value={form.cidade}
                 onChange={handleChange}
                 required
-                placeholder="São Paulo"
+                placeholder="Sao Paulo"
                 autoComplete="address-level2"
               />
             </label>
@@ -190,7 +190,7 @@ function CheckoutModal({ product, whatsappNumber, onClose }) {
           </div>
 
           <button className="button checkout-submit" type="submit">
-            Finalizar pelo WhatsApp
+            Enviar interesse pelo WhatsApp
           </button>
 
         </form>

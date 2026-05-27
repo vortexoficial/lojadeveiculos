@@ -44,6 +44,7 @@ function HeroBannerCarousel({ banners = [], autoplayDelay = 5500 }) {
   const [isPaused, setIsPaused]     = useState(false)
   const [dragOffset, setDragOffset] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
+  const [containerWidth, setContainerWidth] = useState(0)
 
   const containerRef = useRef(null)
   const dragStartX   = useRef(null)
@@ -60,6 +61,20 @@ function HeroBannerCarousel({ banners = [], autoplayDelay = 5500 }) {
       return () => cancelAnimationFrame(id)
     }
   }, [animated])
+
+  useEffect(() => {
+    const element = containerRef.current
+    if (!element) return
+
+    function updateWidth() {
+      setContainerWidth(element.offsetWidth || window.innerWidth)
+    }
+
+    updateWidth()
+    const observer = new ResizeObserver(updateWidth)
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [])
 
   // Autoplay
   useEffect(() => {
@@ -119,9 +134,8 @@ function HeroBannerCarousel({ banners = [], autoplayDelay = 5500 }) {
   if (!activeBanners.length) return null
 
   // Track transform: percentage of total track width
-  const w = containerRef.current?.offsetWidth || 0
   const basePercent = -(trackIndex / total) * 100
-  const dragPercent = isDragging && w > 0 ? (dragOffset / (w * total)) * 100 : 0
+  const dragPercent = isDragging && containerWidth > 0 ? (dragOffset / (containerWidth * total)) * 100 : 0
 
   const trackStyle = {
     display: 'flex',

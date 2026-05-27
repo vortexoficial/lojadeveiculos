@@ -23,7 +23,7 @@ function getDeviceId() {
       localStorage.setItem(DEVICE_KEY, id)
     }
     return id
-  } catch (_) {
+  } catch {
     return 'anonymous'
   }
 }
@@ -36,7 +36,9 @@ export async function logVisit(page = '/') {
       page,
       created_at: new Date().toISOString(),
     })
-  } catch (_) {}
+  } catch {
+    return null
+  }
 }
 
 export async function getVisitorStats() {
@@ -72,7 +74,7 @@ export async function getVisitorStats() {
     }
 
     return { today: todaySet.size, week: weekSet.size, month: monthSet.size }
-  } catch (_) {
+  } catch {
     return null
   }
 }

@@ -1,4 +1,4 @@
-export function formatCurrency(value) {
+﻿export function formatCurrency(value) {
   const number = Number(value || 0)
 
   return number.toLocaleString('pt-BR', {
@@ -17,35 +17,13 @@ export function formatNumber(value, digits = 0) {
 
 export function getProductTypeLabel(type) {
   const labels = {
-    suplemento: 'Suplemento',
-    vestuario: 'Vestuário',
-    acessorio: 'Acessório',
+    suplemento: 'Carro',
+    vestuario: 'Moto',
+    acessorio: 'Acessorio',
     outro: 'Outro',
   }
 
-  return labels[type] || type || 'Produto'
-}
-
-export function getGoalLabel(goal) {
-  const labels = {
-    emagrecer: 'Emagrecer',
-    manter: 'Manter peso',
-    ganhar_massa: 'Ganhar massa',
-  }
-
-  return labels[goal] || goal || '-'
-}
-
-export function getMealTypeLabel(type) {
-  const labels = {
-    cafe_manha: 'Café da manhã',
-    almoco: 'Almoço',
-    lanche: 'Lanche',
-    jantar: 'Jantar',
-    ceia: 'Ceia',
-  }
-
-  return labels[type] || type || 'Refeição'
+  return labels[type] || type || 'Veiculo'
 }
 
 export function splitByComma(value) {

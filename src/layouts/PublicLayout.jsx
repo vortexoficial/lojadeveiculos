@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from 'react'
+﻿import { useEffect, useLayoutEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 function IconWhatsapp() {
@@ -59,7 +59,7 @@ function PublicLayout() {
     event.preventDefault()
     const params = new URLSearchParams()
     if (search.trim()) params.set('q', search.trim())
-    navigate(`/produtos?${params.toString()}`)
+    navigate(`/veiculos?${params.toString()}`)
     setMenuOpen(false)
   }
 
@@ -85,8 +85,8 @@ function PublicLayout() {
                 type="search"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Buscar produtos..."
-                aria-label="Buscar produtos"
+                placeholder="Buscar veiculos..."
+                aria-label="Buscar veiculos"
               />
             </form>
 
@@ -120,16 +120,19 @@ function PublicLayout() {
             <nav
               id="public-menu"
               className={menuOpen ? 'site-nav open' : 'site-nav'}
-              aria-label="Navegação pública"
+              aria-label="Navegacao publica"
             >
               <NavLink to="/" end onClick={() => setMenuOpen(false)}>
-                Início
+                Inicio
               </NavLink>
-              <NavLink to="/produtos" onClick={() => setMenuOpen(false)}>
-                Produtos
+              <NavLink to="/veiculos" onClick={() => setMenuOpen(false)}>
+                Veiculos
               </NavLink>
-              <NavLink to="/vestuario" onClick={() => setMenuOpen(false)}>
-                Vestuário
+              <NavLink to="/carros" onClick={() => setMenuOpen(false)}>
+                Carros
+              </NavLink>
+              <NavLink to="/motos" onClick={() => setMenuOpen(false)}>
+                Motos
               </NavLink>
               <NavLink to="/blog" onClick={() => setMenuOpen(false)}>
                 Blog
@@ -181,7 +184,7 @@ function PublicLayout() {
               )}
             </Link>
             <strong className="footer-brand-name">{settings.store_name}</strong>
-            <p className="footer-brand-desc">Performance, força e disciplina em uma só marca.</p>
+            <p className="footer-brand-desc">Veiculos selecionados, atendimento direto e compra sem complicacao.</p>
             <div className="footer-socials">
               {supportLink ? (
                 <a href={supportLink} className="footer-social" aria-label="WhatsApp" target="_blank" rel="noreferrer">
@@ -198,20 +201,20 @@ function PublicLayout() {
 
           <div className="footer-col">
             <span className="footer-col-label">Loja</span>
-            <Link to="/produtos">Todos os produtos</Link>
-            <Link to="/suplementos">Suplementos</Link>
-            <Link to="/vestuario">Vestuário</Link>
-            <Link to="/produtos?sort=promocoes">Promoções</Link>
+            <Link to="/veiculos">Todos os veiculos</Link>
+            <Link to="/carros">Carros</Link>
+            <Link to="/motos">Motos</Link>
+            <Link to="/ofertas?sort=promocoes">Ofertas</Link>
           </div>
 
           <div className="footer-col">
-            <span className="footer-col-label">Conteúdo</span>
+            <span className="footer-col-label">Conteudo</span>
             <Link to="/blog">Blog</Link>
           </div>
 
           <div className="footer-col footer-cta-col">
             <span className="footer-col-label">Atendimento</span>
-            <p>Compra direta pelo WhatsApp. Sem filas, sem checkout complicado.</p>
+            <p>Atendimento consultivo pelo WhatsApp. Sem filas, sem formulario complicado.</p>
             {supportLink ? (
               <a href={supportLink} className="button whatsapp-button footer-cta-btn" target="_blank" rel="noreferrer">
                 <IconWhatsapp />
@@ -222,8 +225,8 @@ function PublicLayout() {
         </div>
 
         <div className="footer-bottom">
-          <span>© {new Date().getFullYear()} {settings.store_name}. Todos os direitos reservados.</span>
-          <span className="footer-bottom-note">Compra finalizada pelo WhatsApp, sem checkout online.</span>
+          <span>(c) {new Date().getFullYear()} {settings.store_name}. Todos os direitos reservados.</span>
+          <span className="footer-bottom-note">Atendimento e negociacao pelo WhatsApp, sem checkout online.</span>
         </div>
         <div className="footer-dev">
           <hr className="footer-dev-line" />

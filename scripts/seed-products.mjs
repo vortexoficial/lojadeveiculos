@@ -1,260 +1,223 @@
+﻿/**
+ * Digital Veiculos seed script.
+ * Prerequisite: add SUPABASE_SERVICE_ROLE_KEY to .env.local.
+ * Run: node scripts/seed.js
+ */
+
 import { createClient } from '@supabase/supabase-js'
 import { readFileSync } from 'fs'
-import { resolve, dirname } from 'path'
+import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 
-const __dir = dirname(fileURLToPath(import.meta.url))
-const envPath = resolve(__dir, '../.env.local')
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
+const raw = readFileSync(join(ROOT, '.env.local'), 'utf8')
 const env = Object.fromEntries(
-  readFileSync(envPath, 'utf8')
+  raw
     .split('\n')
-    .filter(l => l.includes('='))
-    .map(l => l.split('=').map(s => s.trim()))
+    .filter((line) => line.includes('=') && !line.trim().startsWith('#'))
+    .map((line) => {
+      const index = line.indexOf('=')
+      return [line.slice(0, index).trim(), line.slice(index + 1).trim()]
+    }),
 )
 
 const SUPABASE_URL = env.VITE_SUPABASE_URL
-const SUPABASE_KEY = env.VITE_SUPABASE_PUBLISHABLE_KEY || env.VITE_SUPABASE_ANON_KEY
+const SERVICE_KEY = env.SUPABASE_SERVICE_ROLE_KEY
 
-if (!SUPABASE_URL || !SUPABASE_KEY) {
-  console.error('Variáveis de ambiente não encontradas no .env.local')
+if (!SUPABASE_URL || !SERVICE_KEY) {
+  console.error('Adicione SUPABASE_SERVICE_ROLE_KEY ao .env.local antes de rodar o seed.')
   process.exit(1)
 }
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+const db = createClient(SUPABASE_URL, SERVICE_KEY, {
+  auth: { persistSession: false },
+})
 
 const CATEGORIES = [
-  { name: 'Proteínas',    slug: 'proteinas',    type: 'suplemento' },
-  { name: 'Creatinas',    slug: 'creatinas',    type: 'suplemento' },
-  { name: 'Pré-treinos',  slug: 'pre-treinos',  type: 'suplemento' },
-  { name: 'Aminoácidos',  slug: 'proteinas',    type: 'suplemento' },
-  { name: 'Vitaminas',    slug: 'snacks',       type: 'suplemento' },
-  { name: 'Snacks',       slug: 'snacks',       type: 'suplemento' },
-  { name: 'Acessórios',   slug: 'acessorios',   type: 'acessorio'  },
-  { name: 'Vestuário',    slug: 'vestuario',    type: 'vestuario'  },
+  { name: 'Sedans', slug: 'sedans', type: 'suplemento', is_active: true },
+  { name: 'Hatches', slug: 'hatches', type: 'suplemento', is_active: true },
+  { name: 'SUVs', slug: 'suvs', type: 'suplemento', is_active: true },
+  { name: 'Picapes', slug: 'picapes', type: 'suplemento', is_active: true },
+  { name: 'Motos', slug: 'motos', type: 'vestuario', is_active: true },
+  { name: 'Acessorios automotivos', slug: 'acessorios-automotivos', type: 'acessorio', is_active: true },
 ]
 
 const PRODUCTS = [
   {
-    name: 'Whey Protein Concentrado 900g — Baunilha',
-    slug: 'whey-protein-concentrado-900g-baunilha',
+    name: 'Honda Civic EXL 2020',
+    slug: 'honda-civic-exl-2020',
     type: 'suplemento',
-    categorySlug: 'proteinas',
-    subcategory: 'Whey',
-    brand: 'Pitbull Nutrition',
-    description: 'Whey Protein Concentrado com 24g de proteína por dose. Sabor baunilha cremosa, mistura fácil e digestão rápida. Ideal para ganho muscular e recuperação pós-treino.',
-    price: 159.90,
-    promo_price: 139.90,
-    stock: 25,
-    image_url: '/product-images/whey-protein.webp',
-    objective_tags: ['ganho_massa', 'recuperacao'],
-    is_active: true,
+    catSlug: 'sedans',
+    subcategory: 'Sedan',
+    brand: 'Honda',
+    description: 'Sedan automatico com acabamento premium, bom historico de manutencao, interior confortavel e pacote completo de seguranca.',
+    price: 112900,
+    promo_price: 109900,
+    stock: 1,
+    image_url: '/vehicle-car.svg',
+    gallery_urls: [],
+    objective_tags: ['ganho_massa', 'saude_geral'],
     is_featured: true,
+    is_active: true,
   },
   {
-    name: 'Creatina Monohidratada 300g',
-    slug: 'creatina-monohidratada-300g',
+    name: 'Toyota Corolla XEi 2021',
+    slug: 'toyota-corolla-xei-2021',
     type: 'suplemento',
-    categorySlug: 'creatinas',
-    subcategory: 'Creatina',
-    brand: 'Pitbull Nutrition',
-    description: 'Creatina Monohidratada pura, sem aditivos. Aumenta a força e potência muscular. 60 doses por pote. A creatina mais estudada da ciência esportiva.',
-    price: 89.90,
+    catSlug: 'sedans',
+    subcategory: 'Sedan',
+    brand: 'Toyota',
+    description: 'Corolla automatico reconhecido por conforto, confiabilidade e liquidez. Ideal para familia e uso diario.',
+    price: 128900,
     promo_price: null,
-    stock: 40,
-    image_url: '/product-images/creatina.webp',
-    objective_tags: ['energia', 'ganho_massa'],
-    is_active: true,
+    stock: 1,
+    image_url: '/vehicle-car.svg',
+    gallery_urls: [],
+    objective_tags: ['ganho_massa', 'saude_geral'],
     is_featured: true,
+    is_active: true,
   },
   {
-    name: 'Pré-Treino Explosive Energy 300g',
-    slug: 'pre-treino-explosive-energy-300g',
+    name: 'Chevrolet Onix LTZ Turbo 2023',
+    slug: 'chevrolet-onix-ltz-turbo-2023',
     type: 'suplemento',
-    categorySlug: 'pre-treinos',
-    subcategory: 'Pré-treino',
-    brand: 'Horse Power',
-    description: 'Pré-treino com cafeína, beta-alanina e citrulina malato. Máximo foco, energia e pump. 30 doses por pote. Sabor Frutas Vermelhas.',
-    price: 129.90,
-    promo_price: 109.90,
-    stock: 18,
-    image_url: '/product-images/pre-treino.webp',
-    objective_tags: ['energia'],
-    is_active: true,
+    catSlug: 'hatches',
+    subcategory: 'Hatch',
+    brand: 'Chevrolet',
+    description: 'Hatch turbo economico, conectado e pratico para cidade.',
+    price: 82900,
+    promo_price: 79900,
+    stock: 1,
+    image_url: '/vehicle-car.svg',
+    gallery_urls: [],
+    objective_tags: ['emagrecimento'],
     is_featured: true,
+    is_active: true,
   },
   {
-    name: 'BCAA 2:1:1 Aminoácidos 200 cápsulas',
-    slug: 'bcaa-211-aminoacidos-200-capsulas',
+    name: 'Jeep Compass Longitude 2022',
+    slug: 'jeep-compass-longitude-2022',
     type: 'suplemento',
-    categorySlug: 'proteinas',
-    subcategory: 'BCAA',
-    brand: 'Pitbull Nutrition',
-    description: 'BCAA na proporção 2:1:1 (leucina, isoleucina e valina). Reduz catabolismo muscular e acelera a recuperação. 200 cápsulas de 1000mg.',
-    price: 79.90,
+    catSlug: 'suvs',
+    subcategory: 'SUV',
+    brand: 'Jeep',
+    description: 'SUV com posicao elevada de dirigir, acabamento sofisticado e otimo espaco interno.',
+    price: 149900,
+    promo_price: 145900,
+    stock: 1,
+    image_url: '/vehicle-stock.svg',
+    gallery_urls: [],
+    objective_tags: ['ganho_massa', 'saude_geral'],
+    is_featured: true,
+    is_active: true,
+  },
+  {
+    name: 'Fiat Toro Volcano 2022',
+    slug: 'fiat-toro-volcano-2022',
+    type: 'suplemento',
+    catSlug: 'picapes',
+    subcategory: 'Picape',
+    brand: 'Fiat',
+    description: 'Picape versatil para trabalho e lazer, com bom pacote de equipamentos e visual robusto.',
+    price: 139900,
     promo_price: null,
-    stock: 30,
-    image_url: '/product-images/bcaa.webp',
-    objective_tags: ['recuperacao', 'ganho_massa'],
+    stock: 1,
+    image_url: '/vehicle-stock.svg',
+    gallery_urls: [],
+    objective_tags: ['recuperacao'],
+    is_featured: false,
     is_active: true,
-    is_featured: true,
   },
   {
-    name: 'Vitamina D3 + K2 60 cápsulas',
-    slug: 'vitamina-d3-k2-60-capsulas',
-    type: 'suplemento',
-    categorySlug: 'snacks',
-    subcategory: 'Vitaminas',
-    brand: 'Pitbull Nutrition',
-    description: 'Vitamina D3 2000 UI com Vitamina K2 MK-7. Suporte imunológico, saúde óssea e desempenho físico. Formulação de alta absorção. 60 cápsulas.',
-    price: 49.90,
-    promo_price: 39.90,
-    stock: 50,
-    image_url: '/product-images/vitamina-d.webp',
-    objective_tags: ['saude_geral'],
-    is_active: true,
-    is_featured: true,
-  },
-  {
-    name: 'Ômega 3 TG Fish Oil 90 cápsulas',
-    slug: 'omega-3-tg-fish-oil-90-capsulas',
-    type: 'suplemento',
-    categorySlug: 'snacks',
-    subcategory: 'Ômega',
-    brand: 'Pitbull Nutrition',
-    description: 'Ômega 3 em forma de triglicerídeos (TG) com EPA e DHA. Superior absorção. Reduz inflamação, apoia saúde cardiovascular e cognitiva. 90 cápsulas.',
-    price: 69.90,
-    promo_price: null,
-    stock: 35,
-    image_url: '/product-images/omega3.webp',
-    objective_tags: ['saude_geral'],
-    is_active: true,
-    is_featured: true,
-  },
-  {
-    name: 'Barra Proteica Dark Chocolate 12 unidades',
-    slug: 'barra-proteica-dark-chocolate-12un',
-    type: 'suplemento',
-    categorySlug: 'snacks',
-    subcategory: 'Snacks',
-    brand: 'Pitbull Snacks',
-    description: 'Barra proteica com 20g de proteína, baixo açúcar e sabor chocolate amargo. Lanche prático para qualquer hora. Caixa com 12 unidades de 60g.',
-    price: 99.90,
-    promo_price: 84.90,
-    stock: 22,
-    image_url: '/product-images/barra-proteica.webp',
-    objective_tags: ['saude_geral', 'recuperacao'],
-    is_active: true,
-    is_featured: true,
-  },
-  {
-    name: 'Camiseta Dry Fit Pitbull — Preta',
-    slug: 'camiseta-dry-fit-pitbull-preta',
+    name: 'Honda CG 160 Fan 2023',
+    slug: 'honda-cg-160-fan-2023',
     type: 'vestuario',
-    categorySlug: 'vestuario',
-    subcategory: 'Camisetas',
-    brand: 'Pitbull Wear',
-    description: 'Camiseta com tecnologia Dry Fit de secagem rápida. Tecido leve e respirável para máxima performance. Logo Pitbull bordado no peito. Disponível em P, M, G e GG.',
-    price: 89.90,
-    promo_price: 74.90,
-    stock: 40,
-    image_url: '/product-images/camiseta-fit.webp',
-    objective_tags: ['energia'],
+    catSlug: 'motos',
+    subcategory: 'Moto urbana',
+    brand: 'Honda',
+    description: 'Moto economica e confiavel para rotina urbana, trabalho e deslocamentos diarios.',
+    price: 16900,
+    promo_price: 15900,
+    stock: 1,
+    image_url: '/vehicle-moto.svg',
+    gallery_urls: [],
+    objective_tags: ['emagrecimento', 'recuperacao'],
+    is_featured: false,
     is_active: true,
-    is_featured: true,
-  },
-  {
-    name: 'Short de Treino Pitbull Flex — Cinza',
-    slug: 'short-treino-pitbull-flex-cinza',
-    type: 'vestuario',
-    categorySlug: 'vestuario',
-    subcategory: 'Shorts',
-    brand: 'Pitbull Wear',
-    description: 'Short de treino com tecido compressivo, cintura ajustável e bolso lateral. Perfeito para musculação, corrida e treinos funcionais. Disponível em P, M, G e GG.',
-    price: 74.90,
-    promo_price: null,
-    stock: 28,
-    image_url: '/product-images/short-treino.webp',
-    objective_tags: ['energia'],
-    is_active: true,
-    is_featured: true,
-  },
-  {
-    name: 'Garrafa Shaker Pro 700ml',
-    slug: 'garrafa-shaker-pro-700ml',
-    type: 'acessorio',
-    categorySlug: 'acessorios',
-    subcategory: 'Garrafas',
-    brand: 'Pitbull Gear',
-    description: 'Shaker profissional com mola misturadora interna, tampa com rosca dupla e bico dosador. Capacidade 700ml. Material livre de BPA. Ideal para whey e pré-treino.',
-    price: 44.90,
-    promo_price: 34.90,
-    stock: 60,
-    image_url: '/product-images/garrafa-shaker.webp',
-    objective_tags: ['saude_geral'],
-    is_active: true,
-    is_featured: true,
   },
 ]
 
-async function run() {
-  console.log('🗑️  Excluindo todos os produtos...')
+const POSTS = [
+  {
+    title: 'Como escolher um seminovo com seguranca',
+    slug: 'como-escolher-seminovo-com-seguranca',
+    excerpt: 'Veja pontos essenciais para avaliar procedencia, estado geral e documentacao antes de negociar.',
+    content: '<p>Antes de fechar negocio, avalie historico de manutencao, documentacao, estado de pneus, pintura, motor e cambio.</p>',
+    cover_url: '',
+    is_published: true,
+    published_at: new Date().toISOString(),
+  },
+  {
+    title: 'Documentacao necessaria para comprar um veiculo',
+    slug: 'documentacao-necessaria-para-comprar-veiculo',
+    excerpt: 'Confira os principais documentos e cuidados antes de fechar negocio.',
+    content: '<p>Antes da compra, confira documento do veiculo, debitos, multas, licenciamento, comunicacao de venda e dados do vendedor.</p>',
+    cover_url: '',
+    is_published: true,
+    published_at: new Date().toISOString(),
+  },
+  {
+    title: 'O que observar no test-drive',
+    slug: 'o-que-observar-no-test-drive',
+    excerpt: 'Veja sinais importantes durante a avaliacao pratica do veiculo.',
+    content: '<p>No test-drive, observe partida, ruidos, freios, alinhamento, cambio, suspensao, ar-condicionado e funcionamento dos comandos.</p>',
+    cover_url: '',
+    is_published: true,
+    published_at: new Date().toISOString(),
+  },  {
+    title: 'Financiamento ou pagamento a vista',
+    slug: 'financiamento-ou-pagamento-a-vista',
+    excerpt: 'Entenda vantagens de cada caminho e escolha a melhor forma de negociar seu proximo veiculo.',
+    content: '<p>Compare taxas, entrada, prazo e custo total antes de decidir.</p>',
+    cover_url: '',
+    is_published: true,
+    published_at: new Date().toISOString(),
+  },
+]
 
-  const { data: existingProducts } = await supabase.from('products').select('id')
-  if (existingProducts?.length) {
-    const ids = existingProducts.map(p => p.id)
-    await supabase.from('product_variants').delete().in('product_id', ids)
-    const { error: delErr } = await supabase.from('products').delete().in('id', ids)
-    if (delErr) { console.error('Erro ao excluir:', delErr.message); process.exit(1) }
-    console.log(`   ${ids.length} produto(s) excluído(s).`)
-  } else {
-    console.log('   Nenhum produto existente.')
-  }
+async function main() {
+  const { error: settingsError } = await db.from('store_settings').insert({
+    store_name: 'Digital Veiculos',
+    whatsapp_number: '5511918334855',
+    logo_url: '/novalogo.svg',
+    default_message: 'Ola! Quero saber mais sobre os veiculos disponiveis.',
+    promo_title: 'Veiculos em destaque',
+    promo_text: 'Fale no WhatsApp e confira as oportunidades disponiveis hoje.',
+  })
+  if (settingsError) console.warn('Configuracoes:', settingsError.message)
 
-  console.log('\n📦 Lendo categorias existentes...')
-  const { data: cats, error: catErr } = await supabase
+  const { data: cats, error: catError } = await db
     .from('categories')
+    .upsert(CATEGORIES, { onConflict: 'slug' })
     .select('id, slug')
+  if (catError) throw catError
 
-  if (catErr) { console.error('Erro categorias:', catErr.message); process.exit(1) }
-  const catMap = new Map((cats || []).map(c => [c.slug, c.id]))
-  console.log(`   ${catMap.size} categorias encontradas: ${[...catMap.keys()].join(', ')}`)
-
-  // Se categorias necessárias não existirem, tenta criar (requer admin)
-  const needed = [...new Set(PRODUCTS.map(p => p.categorySlug))]
-  const missing = needed.filter(slug => !catMap.has(slug))
-  if (missing.length) {
-    console.log(`   Criando categorias faltantes: ${missing.join(', ')}`)
-    const toCreate = CATEGORIES.filter(c => missing.includes(c.slug)).map(c => ({ ...c, is_active: true }))
-    const { data: newCats, error: createErr } = await supabase
-      .from('categories').insert(toCreate).select('id, slug')
-    if (createErr) {
-      console.warn(`   ⚠️  Não foi possível criar categorias (RLS): ${createErr.message}`)
-      console.warn('   Produtos serão criados sem categoria.')
-    } else {
-      newCats.forEach(c => catMap.set(c.slug, c.id))
-    }
-  }
-
-  console.log('\n🏋️  Criando 10 produtos...')
-  const now = new Date().toISOString()
-  const rows = PRODUCTS.map(({ categorySlug, subcategory, ...p }) => ({
-    ...p,
-    category_id: catMap.get(categorySlug) || null,
-    gallery_urls: [],
-    objective_tags: p.objective_tags || [],
-    created_at: now,
-    updated_at: now,
+  const categoryBySlug = Object.fromEntries(cats.map((cat) => [cat.slug, cat.id]))
+  const products = PRODUCTS.map(({ catSlug, ...product }) => ({
+    ...product,
+    category_id: categoryBySlug[catSlug] || null,
   }))
 
-  const { data: saved, error: saveErr } = await supabase
-    .from('products')
-    .insert(rows)
-    .select('id, name')
+  const { error: productError } = await db.from('products').upsert(products, { onConflict: 'slug' })
+  if (productError) throw productError
 
-  if (saveErr) { console.error('Erro ao criar produtos:', saveErr.message); process.exit(1) }
+  const { error: postError } = await db.from('blog_posts').upsert(POSTS, { onConflict: 'slug' })
+  if (postError) throw postError
 
-  saved.forEach(p => console.log(`   ✓ ${p.name}`))
-  console.log('\n✅ Pronto! 10 produtos criados com sucesso.')
+  console.log('Seed automotivo concluido com sucesso.')
 }
 
-run()
+main().catch((error) => {
+  console.error(error.message)
+  process.exit(1)
+})

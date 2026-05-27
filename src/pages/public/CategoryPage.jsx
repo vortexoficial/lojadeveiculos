@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { Link, useOutletContext, useParams } from 'react-router-dom'
 import EmptyState from '../../components/EmptyState.jsx'
 import Loading from '../../components/Loading.jsx'
@@ -50,9 +50,9 @@ function CategoryPage() {
     return (
       <main className="page">
         <EmptyState
-          title="Categoria não encontrada"
+          title="Categoria nao encontrada"
           message="Volte para a loja e escolha uma categoria ativa."
-          action={<Link to="/produtos">Ver produtos</Link>}
+          action={<Link to="/veiculos">Ver veiculos</Link>}
         />
       </main>
     )
@@ -63,13 +63,13 @@ function CategoryPage() {
       <section className="page-heading">
         <span className="eyebrow">Categoria</span>
         <h1>{category.name}</h1>
-        <p>Produtos ativos vinculados a esta categoria.</p>
+        <p>Veiculos ativos vinculados a esta categoria.</p>
       </section>
 
       {!products.length ? (
         <EmptyState
-          title="Sem produtos nesta categoria"
-          message="Cadastre ou ative produtos no painel administrativo."
+          title="Sem veiculos nesta categoria"
+          message="Cadastre ou ative veiculos no painel administrativo."
         />
       ) : null}
 

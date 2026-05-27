@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import EmptyState from '../../components/EmptyState.jsx'
 import Loading from '../../components/Loading.jsx'
@@ -25,7 +25,7 @@ function BlogCard({ post }) {
         <time className="blog-card-date">{formatDate(post.published_at || post.created_at)}</time>
         <h2 className="blog-card-title">{post.title}</h2>
         {post.excerpt ? <p className="blog-card-excerpt">{post.excerpt}</p> : null}
-        <span className="blog-card-read">Ler artigo →</span>
+        <span className="blog-card-read">Ler artigo</span>
       </div>
     </Link>
   )
@@ -46,9 +46,9 @@ function BlogPage() {
   return (
     <main className="page">
       <div className="page-heading">
-        <span className="eyebrow">Conteúdo</span>
+        <span className="eyebrow">Conteudo</span>
         <h1>Blog</h1>
-        <p>Dicas, novidades e conteúdo sobre treino, nutrição e estilo de vida.</p>
+        <p>Dicas, novidades e oportunidades do mercado automotivo.</p>
       </div>
 
       {loading ? <Loading /> : null}
@@ -57,7 +57,7 @@ function BlogPage() {
       {!loading && !posts.length ? (
         <EmptyState
           title="Nenhum artigo publicado"
-          message="Em breve novos conteúdos por aqui."
+          message="Em breve novos conteudos por aqui."
         />
       ) : null}
 

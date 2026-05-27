@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import FormStatus from '../../components/FormStatus.jsx'
 import { isSupabaseConfigured } from '../../config/env.js'
@@ -62,19 +62,19 @@ function AdminLogin() {
         <div className="login-brand-glow" />
         <div className="login-brand-lines" />
         <div className="login-brand-inner">
-          <img src="/logo.webp" alt="Pitbull Suplementos" className="login-logo" />
+          <img src="/novalogo.svg" alt="Digital Veiculos" className="login-logo" />
           <div className="login-brand-copy">
             <span className="eyebrow">Painel Administrativo</span>
-            <p>Gerencie produtos, categorias, banners e configurações da sua loja.</p>
+            <p>Gerencie veiculos, categorias, banners e configuracoes da sua loja.</p>
           </div>
           <div className="login-brand-badge">
             <IconShield />
-            Área restrita
+            Area restrita
           </div>
         </div>
       </div>
 
-      {/* Painel do formulário */}
+      {/* Painel do formulario */}
       <div className="login-form-side">
         <form className="login-form" onSubmit={handleSubmit} noValidate>
           <div className="login-form-header">
@@ -110,7 +110,7 @@ function AdminLogin() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
-                placeholder="••••••••"
+                placeholder="********"
               />
             </div>
           </label>
@@ -118,7 +118,7 @@ function AdminLogin() {
           <FormStatus error={error} />
 
           <button className="button login-submit" type="submit" disabled={loading || !isSupabaseConfigured}>
-            {loading ? 'Entrando…' : 'Entrar no painel'}
+            {loading ? 'Entrando...' : 'Entrar no painel'}
           </button>
         </form>
       </div>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { useOutletContext, useSearchParams } from 'react-router-dom'
 import EmptyState from '../../components/EmptyState.jsx'
 import Loading from '../../components/Loading.jsx'
@@ -77,15 +77,15 @@ function ProductsPage({ lockedType = '' }) {
 
   const heading =
     lockedType === 'suplemento'
-      ? { title: 'Suplementos', subtitle: 'Whey, creatina, pré-treino e muito mais. Compare e compre direto pelo WhatsApp.' }
+      ? { title: 'Carros', subtitle: 'Sedans, hatches, SUVs e outras oportunidades selecionadas para voce comparar pelo WhatsApp.' }
       : lockedType === 'vestuario'
-      ? { title: 'Vestuário', subtitle: 'Camisetas, shorts e acessórios para treinar com estilo. Compre pelo WhatsApp.' }
-      : { title: 'Produtos', subtitle: 'Garrafas, xicaras, roupas, suplementos e outros itens da loja. Filtre, compare e compre direto pelo WhatsApp.' }
+      ? { title: 'Motos', subtitle: 'Modelos revisados para quem busca agilidade, economia e bom atendimento.' }
+      : { title: 'Veiculos', subtitle: 'Filtre, compare e fale direto pelo WhatsApp para tirar duvidas ou negociar.' }
 
   return (
     <main className="page">
       <section className="page-heading">
-        <span className="eyebrow">Pitbull Shop</span>
+        <span className="eyebrow">Digital Veiculos</span>
         <h1>{heading.title}</h1>
         <p>{heading.subtitle}</p>
       </section>
@@ -103,8 +103,8 @@ function ProductsPage({ lockedType = '' }) {
       {error ? <div className="form-status error">{error}</div> : null}
       {!loading && !filteredProducts.length ? (
         <EmptyState
-          title="Nenhum produto encontrado"
-          message="Ajuste os filtros ou cadastre novos produtos no painel."
+          title="Nenhum veiculo encontrado"
+          message="Ajuste os filtros ou cadastre novos veiculos no painel."
         />
       ) : null}
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import CustomSelect from '../../components/CustomSelect.jsx'
 import FormStatus from '../../components/FormStatus.jsx'
@@ -77,8 +77,8 @@ function AdminProductForm() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  const fallbackVariantType = product.type === 'vestuario' ? 'tamanho' : 'sabor'
-  const title = id ? 'Editar produto' : 'Novo produto'
+  const fallbackVariantType = 'versao'
+  const title = id ? 'Editar veiculo' : 'Novo veiculo'
 
   useEffect(() => {
     async function loadFormData() {
@@ -88,7 +88,7 @@ function AdminProductForm() {
 
         if (id) {
           const currentProduct = await getProductById(id)
-          if (!currentProduct) throw new Error('Produto não encontrado.')
+          if (!currentProduct) throw new Error('Veiculo nao encontrado.')
           setProduct({ ...emptyProduct, ...currentProduct })
           setVariantText(variantsToText(currentProduct.variants))
           setImageUrls(
@@ -131,11 +131,11 @@ function AdminProductForm() {
   }
 
   function validateProduct() {
-    if (!product.name.trim()) return 'Informe o nome do produto.'
-    if (!product.type) return 'Selecione o tipo do produto.'
-    if (!product.price || Number(product.price) <= 0) return 'Informe um preço válido.'
+    if (!product.name.trim()) return 'Informe o nome do veiculo.'
+    if (!product.type) return 'Selecione o tipo do veiculo.'
+    if (!product.price || Number(product.price) <= 0) return 'Informe um preco valido.'
     if (product.promo_price && Number(product.promo_price) >= Number(product.price)) {
-      return 'O preço promocional deve ser menor que o preço normal.'
+      return 'O preco de oferta deve ser menor que o preco normal.'
     }
 
     return ''
@@ -170,8 +170,8 @@ function AdminProductForm() {
       const variants = parseVariants(variantText, fallbackVariantType)
 
       await saveProductWithVariants(payload, variants)
-      setSuccess('Produto salvo com sucesso.')
-      navigate('/admin/produtos')
+      setSuccess('Veiculo salvo com sucesso.')
+      navigate('/admin/veiculos')
     } catch (err) {
       setError(err.message)
     } finally {
@@ -185,17 +185,17 @@ function AdminProductForm() {
     <section className="admin-page">
       <div className="admin-page-heading">
         <div>
-          <span className="eyebrow">Produtos</span>
+          <span className="eyebrow">Veiculos</span>
           <h1>{title}</h1>
         </div>
-        <Link className="button secondary" to="/admin/produtos">
+        <Link className="button secondary" to="/admin/veiculos">
           Voltar
         </Link>
       </div>
 
       <form className="panel form-grid" onSubmit={handleSubmit}>
         <label>
-          Nome
+          Modelo / veiculo
           <input
             value={product.name}
             onChange={(event) => updateField('name', event.target.value)}
@@ -233,11 +233,11 @@ function AdminProductForm() {
           />
         </label>
         <label>
-          Subcategoria
+          Versao ou categoria
           <input
             value={product.subcategory || ''}
             onChange={(event) => updateField('subcategory', event.target.value)}
-            placeholder="Ex.: garrafas, xicaras, mochilas"
+            placeholder="Ex.: Sedan, SUV, 1.0 Turbo, EXL"
           />
         </label>
         <label>
@@ -245,11 +245,11 @@ function AdminProductForm() {
           <input
             value={product.brand || ''}
             onChange={(event) => updateField('brand', event.target.value)}
-            placeholder="marca, material ou coleção"
+            placeholder="Ex.: Honda, Toyota, Chevrolet"
           />
         </label>
         <label>
-          Preço normal
+          Preco
           <NumberInput
             min="0"
             step="0.01"
@@ -259,7 +259,7 @@ function AdminProductForm() {
           />
         </label>
         <label>
-          Preço promocional
+          Preco de oferta
           <NumberInput
             min="0"
             step="0.01"
@@ -268,7 +268,7 @@ function AdminProductForm() {
           />
         </label>
         <label>
-          Estoque geral
+          Disponibilidade
           <NumberInput
             min="0"
             value={product.stock}
@@ -281,7 +281,7 @@ function AdminProductForm() {
             checked={product.is_active}
             onChange={(event) => updateField('is_active', event.target.checked)}
           />
-          Produto ativo
+          Veiculo ativo
         </label>
         <label className="checkbox-label">
           <input
@@ -292,16 +292,16 @@ function AdminProductForm() {
           Destaque na home
         </label>
         <label className="full-field">
-          Descrição
+          Descricao
           <textarea
             value={product.description || ''}
             onChange={(event) => updateField('description', event.target.value)}
-            placeholder="Descrição, modo de uso informativo, material e observações."
+            placeholder="Ano/modelo, quilometragem, cambio, combustivel, cor, opcionais e observacoes."
           />
         </label>
 
         <fieldset className="full-field checkbox-group">
-          <legend>Objetivos relacionados</legend>
+          <legend>Perfil indicado</legend>
           {PRODUCT_OBJECTIVES.map((objective) => (
             <label key={objective.value} className="checkbox-label">
               <input
@@ -315,19 +315,19 @@ function AdminProductForm() {
         </fieldset>
 
         <label className="full-field">
-          Variações
+          Versoes e opcionais
           <textarea
             value={variantText}
             onChange={(event) => setVariantText(event.target.value)}
-            placeholder={`${fallbackVariantType}, Nome, estoque, ajuste de preço`}
+            placeholder={`${fallbackVariantType}, Completo, quantidade, ajuste de preco`}
           />
           <small>
-            Uma por linha. Ex.: {fallbackVariantType}, Baunilha, 10, 0
+            Uma por linha. Ex.: {fallbackVariantType}, Completo, 1, 0
           </small>
         </label>
 
         <ImageUploader
-          label="Fotos do produto"
+          label="Fotos do veiculo"
           urls={imageUrls}
           files={imageFiles}
           onUrlsChange={setImageUrls}
@@ -338,7 +338,7 @@ function AdminProductForm() {
 
         <FormStatus error={error} success={success} />
         <button className="button full-field" type="submit" disabled={saving}>
-          {saving ? 'Salvando...' : 'Salvar produto'}
+          {saving ? 'Salvando...' : 'Salvar veiculo'}
         </button>
       </form>
     </section>

@@ -1,14 +1,14 @@
-import { getClient, isMissingColumn, unwrap, unwrapMaybe } from './helpers.js'
+﻿import { getClient, isMissingColumn, unwrap, unwrapMaybe } from './helpers.js'
 
 export const DEFAULT_SETTINGS = {
   id: null,
-  store_name: 'Pitbull Suplementos',
+  store_name: 'Digital Veiculos',
   whatsapp_number: '5511918334855',
-  logo_url: '/logo.webp',
+  logo_url: '/novalogo.svg',
   instagram_url: '',
-  default_message: 'Ola! Quero saber mais sobre os produtos da loja.',
-  promo_title: 'Ofertas para treinar forte',
-  promo_text: 'Fale no WhatsApp e confira suplementos, combos e vestuario disponiveis hoje.',
+  default_message: 'Ola! Quero saber mais sobre os veiculos disponiveis.',
+  promo_title: 'Veiculos em destaque',
+  promo_text: 'Fale no WhatsApp e confira os veiculos disponiveis hoje.',
 }
 
 function normalizeSettings(settings) {
