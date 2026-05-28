@@ -12,6 +12,28 @@ import { listPosts } from '../../services/blogService.js'
 import { listHomeCategoryBanners } from '../../services/homeCategoryBannersService.js'
 import { listProducts } from '../../services/productsService.js'
 
+const CATEGORY_BANNER_COPY = {
+  carros: { title: 'Carros', subtitle: 'Sedans, hatches, SUVs e mais' },
+  motos: { title: 'Motos', subtitle: 'Modelos selecionados para sua rotina' },
+  veiculos: { title: 'Veiculos', subtitle: 'Toda a frota disponivel' },
+  ofertas: { title: 'Ofertas', subtitle: 'Oportunidades em destaque' },
+}
+
+function getCategoryBannerCopy(slot) {
+  const key = (slot.link_to || slot.name || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+
+  const match = Object.keys(CATEGORY_BANNER_COPY).find((item) => key.includes(item))
+  const fallback = match ? CATEGORY_BANNER_COPY[match] : CATEGORY_BANNER_COPY.veiculos
+
+  return {
+    title: slot.name || fallback.title,
+    subtitle: fallback.subtitle,
+  }
+}
+
 function Home() {
   const { settings } = useOutletContext()
   const [products, setProducts] = useState([])
@@ -73,20 +95,28 @@ function Home() {
         </div>
         {categoryBanners.length > 0 ? (
           <div className="cat-home-grid">
-            {categoryBanners.map((slot) => (
-              <Link
-                key={slot.id}
-                className="cat-home-item"
-                to={slot.link_to || '/veiculos'}
-                aria-label={slot.name}
-              >
-                {slot.image_url ? (
-                  <img src={slot.image_url} alt={slot.name} loading="lazy" />
-                ) : (
-                  <span className="cat-home-placeholder">{slot.name}</span>
-                )}
-              </Link>
-            ))}
+            {categoryBanners.map((slot) => {
+              const copy = getCategoryBannerCopy(slot)
+
+              return (
+                <Link
+                  key={slot.id}
+                  className="cat-home-item"
+                  to={slot.link_to || '/veiculos'}
+                  aria-label={`${copy.title}: ${copy.subtitle}`}
+                >
+                  {slot.image_url ? (
+                    <img src={slot.image_url} alt="" loading="lazy" />
+                  ) : (
+                    <span className="cat-home-placeholder">{copy.title}</span>
+                  )}
+                  <span className="cat-home-copy">
+                    <strong>{copy.title}</strong>
+                    <span>{copy.subtitle}</span>
+                  </span>
+                </Link>
+              )
+            })}
           </div>
         ) : (
           <div className="category-grid premium-categories">

@@ -171,7 +171,7 @@ function AdminCategoryBanners() {
           <span className="eyebrow">Home</span>
           <h1>Banners de Categoria</h1>
           <p className="admin-page-desc">
-            4 slots fixos na secao "Escolha sua categoria". Envie criativos prontos; nenhum texto e sobreposto pelo site.
+            4 slots fixos na secao "Escolha sua categoria". Os titulos e descricoes aparecem automaticamente sobre cada banner.
           </p>
         </div>
         {!loading && slots.length > 0 ? (
