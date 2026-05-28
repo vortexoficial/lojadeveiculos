@@ -945,9 +945,7 @@ td a:nth-of-type(4n),
 }
 
 .hero-banner-carousel {
-  aspect-ratio: 1920 / 860;
-  min-height: 400px;
-  max-height: 660px;
+  aspect-ratio: 1983 / 793;
   border: 1px solid rgba(0, 76, 255, 0.24);
   border-radius: 12px;
   background: #05070D;
@@ -990,7 +988,7 @@ td a:nth-of-type(4n),
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: var(--desktop-position, center center);
   user-select: none;
   -webkit-user-drag: none;
@@ -4254,8 +4252,7 @@ td a:nth-of-type(4n),
   }
 
   .hero-banner-carousel {
-    height: clamp(480px, 85vw, 680px);
-    min-height: 480px;
+    aspect-ratio: 1983 / 793;
     margin-top: 18px;
     border-radius: 10px;
   }
@@ -4445,6 +4442,12 @@ td a:nth-of-type(4n),
   }
 }
 
+@media (max-width: 767px) {
+  .hero-banner-carousel {
+    aspect-ratio: 941 / 1672;
+  }
+}
+
 @media (max-width: 560px) {
   .page,
   .content-section,
@@ -4480,8 +4483,7 @@ td a:nth-of-type(4n),
   }
 
   .hero-banner-carousel {
-    height: clamp(500px, 128vw, 680px);
-    min-height: 500px;
+    aspect-ratio: 941 / 1672;
     border-radius: 10px;
   }
 
@@ -5744,13 +5746,13 @@ td a:nth-of-type(4n),
   border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
-  aspect-ratio: 16/7;
+  aspect-ratio: 1983/793;
   background: rgba(255,255,255,.03);
   transition: border-color 200ms;
 }
 
 .banner-img-field:nth-child(2) .banner-img-preview-box {
-  aspect-ratio: 4/3;
+  aspect-ratio: 941/1672;
 }
 
 .banner-img-preview-box:hover {
@@ -5760,7 +5762,7 @@ td a:nth-of-type(4n),
 .banner-img-preview-box img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
@@ -5830,7 +5832,7 @@ td a:nth-of-type(4n),
 .banner-thumb {
   width: 70px;
   height: 36px;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 6px;
   background: var(--surface-2);
 }
