@@ -1,10 +1,16 @@
 ﻿-- Correcoes seguras para bancos criados com uma versao antiga do projeto.
 -- Rode no SQL Editor do Supabase. Nao apaga dados existentes.
 
+-- Digital Veiculos com Dashboard
+-- Rode este arquivo no SQL Editor do Supabase.
+
 create extension if not exists pgcrypto;
 
 create table if not exists public.profiles (
-  id uuid primary key references auth.users(id) on delete cascade
+  id uuid primary key references auth.users(id) on delete cascade,
+  name text,
+  role text default 'admin' check (role in ('admin')),
+  created_at timestamp with time zone default now()
 );
 
 alter table public.profiles
@@ -13,64 +19,29 @@ alter table public.profiles
   add column if not exists created_at timestamp with time zone default now();
 
 create table if not exists public.store_settings (
-  id uuid primary key default gen_random_uuid()
-);
-
-alter table public.store_settings
-  add column if not exists store_name text default 'Digital Veiculos',
-  add column if not exists whatsapp_number text default '5500000000000',
-  add column if not exists logo_url text,
-  add column if not exists instagram_url text,
-  add column if not exists default_message text default 'Ola! Quero saber mais sobre os veiculos disponiveis.',
-  add column if not exists promo_title text default 'Veiculos em destaque',
-  add column if not exists promo_text text default 'Fale no WhatsApp e confira as oportunidades disponiveis hoje.',
-  add column if not exists created_at timestamp with time zone default now(),
-  add column if not exists updated_at timestamp with time zone default now();
-
-do $$
-begin
-  if exists (
-    select 1
-    from information_schema.columns
-    where table_schema = 'public'
-      and table_name = 'store_settings'
-      and column_name = 'instagram'
-  ) then
-    execute 'update public.store_settings set instagram_url = coalesce(instagram_url, instagram, '''')';
-  end if;
-end $$;
-
-create table if not exists public.categories (
   id uuid primary key default gen_random_uuid(),
-  name text not null
+  store_name text not null default 'Digital Veiculos',
+  whatsapp_number text not null default '5500000000000',
+  logo_url text,
+  instagram_url text,
+  default_message text default 'Ola! Quero saber mais sobre os veiculos disponiveis.',
+  promo_title text default 'Veiculos em destaque',
+  promo_text text default 'Fale no WhatsApp e confira as oportunidades disponiveis hoje.',
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
 );
-
-alter table public.categories
-  add column if not exists slug text,
-  add column if not exists type text,
-  add column if not exists is_active boolean default true,
-  add column if not exists created_at timestamp with time zone default now();
-
-update public.categories
-set is_active = coalesce(is_active, true);
-
-do $$
-begin
-  if exists (
-    select 1
-    from information_schema.columns
-    where table_schema = 'public'
-      and table_name = 'categories'
-      and column_name = 'active'
-  ) then
-    execute 'update public.categories set is_active = coalesce(is_active, active, true)';
-  end if;
-end $$;
-
-create unique index if not exists categories_slug_unique on public.categories (slug);
 
 create table if not exists public.home_banners (
-  id uuid primary key default gen_random_uuid()
+  id uuid primary key default gen_random_uuid(),
+  title text not null default 'Banner da home',
+  desktop_image_url text not null,
+  mobile_image_url text not null,
+  desktop_position text default 'center center',
+  mobile_position text default 'center center',
+  display_order integer default 1,
+  is_active boolean default true,
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
 );
 
 alter table public.home_banners
@@ -115,8 +86,107 @@ begin
   end if;
 end $$;
 
+create table if not exists public.home_category_banners (
+  id uuid primary key default gen_random_uuid(),
+  slot integer not null unique check (slot between 1 and 4),
+  name text not null default '',
+  image_url text default '',
+  link_to text default '',
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
+);
+
+alter table public.home_category_banners
+  add column if not exists slot integer,
+  add column if not exists name text default '',
+  add column if not exists image_url text default '',
+  add column if not exists link_to text default '',
+  add column if not exists created_at timestamp with time zone default now(),
+  add column if not exists updated_at timestamp with time zone default now();
+
+update public.home_category_banners
+set
+  name = coalesce(name, ''),
+  image_url = coalesce(image_url, ''),
+  link_to = coalesce(link_to, '');
+
+create unique index if not exists home_category_banners_slot_unique
+on public.home_category_banners (slot);
+
+alter table public.store_settings
+  add column if not exists promo_title text default 'Veiculos em destaque',
+  add column if not exists promo_text text default 'Fale no WhatsApp e confira as oportunidades disponiveis hoje.';
+
+alter table public.store_settings
+  add column if not exists store_name text default 'Digital Veiculos',
+  add column if not exists whatsapp_number text default '5500000000000',
+  add column if not exists logo_url text,
+  add column if not exists instagram_url text,
+  add column if not exists default_message text default 'Ola! Quero saber mais sobre os veiculos disponiveis.',
+  add column if not exists created_at timestamp with time zone default now(),
+  add column if not exists updated_at timestamp with time zone default now();
+
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'store_settings'
+      and column_name = 'instagram'
+  ) then
+    execute 'update public.store_settings set instagram_url = coalesce(instagram_url, instagram, '''')';
+  end if;
+end $$;
+
+create table if not exists public.categories (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  slug text unique,
+  type text,
+  is_active boolean default true,
+  created_at timestamp with time zone default now()
+);
+
+alter table public.categories
+  add column if not exists is_active boolean default true;
+
+update public.categories
+set is_active = true
+where is_active is null;
+
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'categories'
+      and column_name = 'active'
+  ) then
+    execute 'update public.categories set is_active = coalesce(is_active, active, true)';
+  end if;
+end $$;
+
 create table if not exists public.products (
-  id uuid primary key default gen_random_uuid()
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  slug text unique,
+  type text not null check (type in ('suplemento', 'vestuario', 'acessorio', 'outro', 'carro', 'moto', 'suv', 'picape')),
+  category_id uuid references public.categories(id) on delete set null,
+  subcategory text default '',
+  description text,
+  brand text,
+  price numeric(12,2) not null default 0,
+  promo_price numeric(12,2),
+  stock integer default 0,
+  image_url text,
+  gallery_urls jsonb default '[]'::jsonb,
+  is_active boolean default true,
+  is_featured boolean default false,
+  objective_tags text[] default '{}'::text[],
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
 );
 
 alter table public.products
@@ -124,7 +194,7 @@ alter table public.products
   add column if not exists slug text,
   add column if not exists type text,
   add column if not exists category_id uuid references public.categories(id) on delete set null,
-  add column if not exists subcategory text,
+  add column if not exists subcategory text default '',
   add column if not exists description text,
   add column if not exists brand text,
   add column if not exists price numeric(12,2) default 0,
@@ -188,11 +258,18 @@ begin
   end if;
 end $$;
 
+create unique index if not exists categories_slug_unique on public.categories (slug);
 create unique index if not exists products_slug_unique on public.products (slug);
 
 create table if not exists public.product_variants (
   id uuid primary key default gen_random_uuid(),
-  product_id uuid references public.products(id) on delete cascade
+  product_id uuid references public.products(id) on delete cascade,
+  variant_type text,
+  name text,
+  stock integer default 0,
+  price_adjustment numeric(12,2) default 0,
+  created_at timestamp with time zone default now(),
+  unique (product_id, variant_type, name)
 );
 
 alter table public.product_variants
@@ -264,6 +341,11 @@ create trigger set_home_banners_updated_at
 before update on public.home_banners
 for each row execute function public.set_updated_at();
 
+drop trigger if exists set_home_category_banners_updated_at on public.home_category_banners;
+create trigger set_home_category_banners_updated_at
+before update on public.home_category_banners
+for each row execute function public.set_updated_at();
+
 drop trigger if exists set_blog_posts_updated_at on public.blog_posts;
 create trigger set_blog_posts_updated_at
 before update on public.blog_posts
@@ -310,6 +392,7 @@ $$;
 alter table public.profiles enable row level security;
 alter table public.store_settings enable row level security;
 alter table public.home_banners enable row level security;
+alter table public.home_category_banners enable row level security;
 alter table public.categories enable row level security;
 alter table public.products enable row level security;
 alter table public.product_variants enable row level security;
@@ -350,6 +433,19 @@ using (is_active = true or public.is_admin());
 drop policy if exists "Admins manage home banners" on public.home_banners;
 create policy "Admins manage home banners"
 on public.home_banners for all
+to authenticated
+using (public.is_admin())
+with check (public.is_admin());
+
+drop policy if exists "Public can read home category banners" on public.home_category_banners;
+create policy "Public can read home category banners"
+on public.home_category_banners for select
+to public
+using (true);
+
+drop policy if exists "Admins manage home category banners" on public.home_category_banners;
+create policy "Admins manage home category banners"
+on public.home_category_banners for all
 to authenticated
 using (public.is_admin())
 with check (public.is_admin());
@@ -454,7 +550,6 @@ on storage.objects for delete
 to authenticated
 using (bucket_id = 'product-images' and public.is_admin());
 
-
 -- Digital Veiculos demo data
 -- Digital Veiculos - Seed demo
 -- Cole no Supabase SQL Editor e execute.
@@ -471,6 +566,28 @@ on conflict (slug) do update
   set name = excluded.name,
       type = excluded.type,
       is_active = true;
+
+update categories
+set is_active = false
+where slug in ('garrafas', 'xicaras', 'combos');
+
+update products
+set is_active = false,
+    updated_at = now()
+where slug in ('chevrolet-onix-ltz-turbo-2023', 'honda-cg-160-fan-2023');
+
+insert into home_category_banners (slot, name, image_url, link_to)
+values
+  (1, 'Carros', '/vehicle-car.svg', '/carros'),
+  (2, 'Motos', '/vehicle-moto.svg', '/motos'),
+  (3, 'Veiculos', '/vehicle-stock.svg', '/veiculos'),
+  (4, 'Ofertas', '/vehicle-offers.svg', '/ofertas?sort=promocoes')
+on conflict (slot) do update
+set
+  name = excluded.name,
+  image_url = excluded.image_url,
+  link_to = excluded.link_to,
+  updated_at = now();
 
 insert into store_settings (
   store_name,
@@ -502,54 +619,108 @@ values
   'Honda Civic EXL 2020',
   'honda-civic-exl-2020',
   'suplemento', (select id from categories where slug = 'sedans'), 'Sedan',
-  'Sedan automatico com acabamento premium, bom historico de manutencao, interior confortavel e pacote completo de seguranca. Consulte quilometragem, documentacao e disponibilidade pelo WhatsApp.',
-  'Honda', 112900, 109900, 1,
-  '/vehicle-car.svg', '[]'::jsonb, array['ganho_massa','saude_geral'],
+  'Sedan automatico com bom pacote de conforto, motor eficiente, porta-malas amplo e acabamento refinado. Catalogo demo com imagens reais de referencia do modelo.',
+  'Honda', 114700, 109900, 1,
+  '/demo-vehicles/honda-civic-exl-2020-01.jpg', '["/demo-vehicles/honda-civic-exl-2020-02.png","/demo-vehicles/honda-civic-exl-2020-03.jpg","/demo-vehicles/honda-civic-exl-2020-04.jpg"]'::jsonb, array['ganho_massa','saude_geral'],
   true, true, now(), now()
 ),
 (
   'Toyota Corolla XEi 2021',
   'toyota-corolla-xei-2021',
   'suplemento', (select id from categories where slug = 'sedans'), 'Sedan',
-  'Corolla automatico reconhecido por conforto, confiabilidade e liquidez. Ideal para familia e uso diario.',
+  'Sedan reconhecido por conforto, confiabilidade e liquidez. Boa escolha para familia, rotina urbana e viagens com baixo custo de manutencao.',
   'Toyota', 128900, null, 1,
-  '/vehicle-car.svg', '[]'::jsonb, array['ganho_massa','saude_geral'],
+  '/demo-vehicles/toyota-corolla-xei-2021-01.jpg', '["/demo-vehicles/toyota-corolla-xei-2021-02.jpg","/demo-vehicles/toyota-corolla-xei-2021-03.jpg","/demo-vehicles/toyota-corolla-xei-2021-04.jpg"]'::jsonb, array['ganho_massa','saude_geral'],
   true, true, now(), now()
 ),
 (
-  'Chevrolet Onix LTZ Turbo 2023',
-  'chevrolet-onix-ltz-turbo-2023',
-  'suplemento', (select id from categories where slug = 'hatches'), 'Hatch',
-  'Hatch turbo economico, conectado e pratico para cidade. Consulte condicao, opcionais e formas de negociacao com a equipe.',
-  'Chevrolet', 82900, 79900, 1,
-  '/vehicle-car.svg', '[]'::jsonb, array['emagrecimento'],
+  'Chevrolet Cruze LTZ 2020',
+  'chevrolet-cruze-ltz-2020',
+  'suplemento', (select id from categories where slug = 'sedans'), 'Sedan',
+  'Sedan medio com proposta moderna, bom desempenho, equipamentos de conforto e visual elegante. Ideal para quem busca dirigibilidade e tecnologia.',
+  'Chevrolet', 94900, 91900, 1,
+  '/demo-vehicles/chevrolet-cruze-ltz-2020-01.jpg', '["/demo-vehicles/chevrolet-cruze-ltz-2020-02.jpg","/demo-vehicles/chevrolet-cruze-ltz-2020-03.jpg","/demo-vehicles/chevrolet-cruze-ltz-2020-04.jpg"]'::jsonb, array['emagrecimento'],
   true, true, now(), now()
 ),
 (
   'Jeep Compass Longitude 2022',
   'jeep-compass-longitude-2022',
   'suplemento', (select id from categories where slug = 'suvs'), 'SUV',
-  'SUV com posicao elevada de dirigir, acabamento sofisticado e otimo espaco interno. Ideal para quem busca conforto e presenca.',
+  'SUV com posicao elevada de dirigir, acabamento sofisticado e otimo espaco interno. Ideal para quem busca conforto, presenca e versatilidade.',
   'Jeep', 149900, 145900, 1,
-  '/vehicle-stock.svg', '[]'::jsonb, array['ganho_massa','saude_geral'],
+  '/demo-vehicles/jeep-compass-longitude-2022-01.jpg', '["/demo-vehicles/jeep-compass-longitude-2022-02.jpg","/demo-vehicles/jeep-compass-longitude-2022-03.jpg","/demo-vehicles/jeep-compass-longitude-2022-04.jpg"]'::jsonb, array['ganho_massa','saude_geral'],
   true, true, now(), now()
 ),
 (
   'Fiat Toro Volcano 2022',
   'fiat-toro-volcano-2022',
   'suplemento', (select id from categories where slug = 'picapes'), 'Picape',
-  'Picape versatil para trabalho e lazer, com bom pacote de equipamentos e visual robusto. Atendimento direto para proposta e avaliacao de troca.',
+  'Picape versatil para trabalho e lazer, com bom pacote de equipamentos, visual robusto e cacamba pratica para a rotina.',
   'Fiat', 139900, null, 1,
-  '/vehicle-stock.svg', '[]'::jsonb, array['recuperacao'],
+  '/demo-vehicles/fiat-toro-volcano-2022-01.png', '["/demo-vehicles/fiat-toro-volcano-2022-02.png","/demo-vehicles/fiat-toro-volcano-2022-03.png","/demo-vehicles/fiat-toro-volcano-2022-04.jpg"]'::jsonb, array['recuperacao'],
+  true, true, now(), now()
+),
+(
+  'Ford Ranger Stormtrak 2023',
+  'ford-ranger-stormtrak-2023',
+  'suplemento', (select id from categories where slug = 'picapes'), 'Picape',
+  'Picape robusta com perfil premium, cabine ampla, boa capacidade de carga e conjunto indicado para estrada, campo e uso profissional.',
+  'Ford', 239900, 229900, 1,
+  '/demo-vehicles/ford-ranger-stormtrak-2023-01.jpg', '["/demo-vehicles/ford-ranger-stormtrak-2023-02.jpg","/demo-vehicles/ford-ranger-stormtrak-2023-03.jpg","/demo-vehicles/ford-ranger-stormtrak-2023-04.jpg"]'::jsonb, array['recuperacao','saude_geral'],
+  true, true, now(), now()
+),
+(
+  'Yamaha MT-03 ABS 2024',
+  'yamaha-mt-03-abs-2024',
+  'vestuario', (select id from categories where slug = 'motos'), 'Naked',
+  'Naked de media cilindrada com pilotagem agil, visual agressivo e boa resposta para uso urbano e passeios de fim de semana.',
+  'Yamaha', 31900, 29900, 1,
+  '/demo-vehicles/yamaha-mt-03-abs-2024-01.jpg', '["/demo-vehicles/yamaha-mt-03-abs-2024-02.jpg","/demo-vehicles/yamaha-mt-03-abs-2024-03.jpg","/demo-vehicles/yamaha-mt-03-abs-2024-04.jpg"]'::jsonb, array['emagrecimento'],
+  true, true, now(), now()
+),
+(
+  'BMW R 1200 GS 2018',
+  'bmw-r-1200-gs-2018',
+  'vestuario', (select id from categories where slug = 'motos'), 'Trail',
+  'Maxtrail consagrada para longas viagens, com ergonomia confortavel, porte imponente e conjunto pronto para asfalto e aventura.',
+  'BMW', 64900, null, 1,
+  '/demo-vehicles/bmw-r-1200-gs-2018-01.jpg', '["/demo-vehicles/bmw-r-1200-gs-2018-02.jpg","/demo-vehicles/bmw-r-1200-gs-2018-03.jpg","/demo-vehicles/bmw-r-1200-gs-2018-04.jpg"]'::jsonb, array['recuperacao','saude_geral'],
+  true, true, now(), now()
+),
+(
+  'Ducati Monster 696 2012',
+  'ducati-monster-696-2012',
+  'vestuario', (select id from categories where slug = 'motos'), 'Naked',
+  'Naked italiana com estilo marcante, proposta esportiva e ciclistica envolvente. Boa opcao para quem busca personalidade.',
+  'Ducati', 32900, 31500, 1,
+  '/demo-vehicles/ducati-monster-696-2012-01.jpg', '["/demo-vehicles/ducati-monster-696-2012-02.jpg","/demo-vehicles/ducati-monster-696-2012-03.jpg","/demo-vehicles/ducati-monster-696-2012-04.jpg"]'::jsonb, array['ganho_massa'],
   true, false, now(), now()
 ),
 (
-  'Honda CG 160 Fan 2023',
-  'honda-cg-160-fan-2023',
-  'vestuario', (select id from categories where slug = 'motos'), 'Moto urbana',
-  'Moto economica e confiavel para rotina urbana, trabalho e deslocamentos diarios. Consulte documentacao e disponibilidade.',
-  'Honda', 16900, 15900, 1,
-  '/vehicle-moto.svg', '[]'::jsonb, array['emagrecimento','recuperacao'],
+  'Triumph Tiger 800 XC 2015',
+  'triumph-tiger-800-xc-2015',
+  'vestuario', (select id from categories where slug = 'motos'), 'Trail',
+  'Trail de media-alta cilindrada com pegada aventureira, motor forte e conforto para viagens mais longas.',
+  'Triumph', 49900, 47900, 1,
+  '/demo-vehicles/triumph-tiger-800-xc-2015-01.jpg', '["/demo-vehicles/triumph-tiger-800-xc-2015-02.jpg","/demo-vehicles/triumph-tiger-800-xc-2015-03.jpg","/demo-vehicles/triumph-tiger-800-xc-2015-04.jpg"]'::jsonb, array['recuperacao'],
+  true, false, now(), now()
+),
+(
+  'Honda CBR 500R 2018',
+  'honda-cbr-500r-2018',
+  'vestuario', (select id from categories where slug = 'motos'), 'Sport',
+  'Esportiva bicilindrica equilibrada, indicada para quem quer visual carenado, confiabilidade e pilotagem acessivel.',
+  'Honda', 33900, null, 1,
+  '/demo-vehicles/honda-cbr-500r-2018-01.jpg', '["/demo-vehicles/honda-cbr-500r-2018-02.jpg","/demo-vehicles/honda-cbr-500r-2018-03.jpg","/demo-vehicles/honda-cbr-500r-2018-04.jpg"]'::jsonb, array['ganho_massa','emagrecimento'],
+  true, false, now(), now()
+),
+(
+  'Kawasaki Z650 ABS 2020',
+  'kawasaki-z650-abs-2020',
+  'vestuario', (select id from categories where slug = 'motos'), 'Naked',
+  'Naked de visual esportivo, motor bicilindrico e boa ergonomia para uso misto entre cidade e estrada.',
+  'Kawasaki', 39900, 37900, 1,
+  '/demo-vehicles/kawasaki-z650-abs-2020-01.jpg', '["/demo-vehicles/kawasaki-z650-abs-2020-02.jpg","/demo-vehicles/kawasaki-z650-abs-2020-03.jpg","/demo-vehicles/kawasaki-z650-abs-2020-04.jpg"]'::jsonb, array['saude_geral'],
   true, false, now(), now()
 )
 on conflict (slug) do update
@@ -570,7 +741,7 @@ set
   is_featured = excluded.is_featured,
   updated_at = now();
 
-insert into blog_posts (title, slug, excerpt, content, cover_url, is_published, published_at)
+insert into blog_posts (title, slug, excerpt, content, cover_url, published, published_at)
 values
 (
   'Como escolher um seminovo com seguranca',
@@ -605,10 +776,8 @@ set title = excluded.title,
     excerpt = excluded.excerpt,
     content = excluded.content,
     cover_url = excluded.cover_url,
-    is_published = excluded.is_published,
+    published = excluded.published,
     published_at = excluded.published_at;
 
 notify pgrst, 'reload schema';
-
-
 

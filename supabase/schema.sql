@@ -564,6 +564,15 @@ on conflict (slug) do update
       type = excluded.type,
       is_active = true;
 
+update categories
+set is_active = false
+where slug in ('garrafas', 'xicaras', 'combos');
+
+update products
+set is_active = false,
+    updated_at = now()
+where slug in ('chevrolet-onix-ltz-turbo-2023', 'honda-cg-160-fan-2023');
+
 insert into home_category_banners (slot, name, image_url, link_to)
 values
   (1, 'Carros', '/vehicle-car.svg', '/carros'),
@@ -607,54 +616,108 @@ values
   'Honda Civic EXL 2020',
   'honda-civic-exl-2020',
   'suplemento', (select id from categories where slug = 'sedans'), 'Sedan',
-  'Sedan automatico com acabamento premium, bom historico de manutencao, interior confortavel e pacote completo de seguranca. Consulte quilometragem, documentacao e disponibilidade pelo WhatsApp.',
-  'Honda', 112900, 109900, 1,
-  '/vehicle-car.svg', '[]'::jsonb, array['ganho_massa','saude_geral'],
+  'Sedan automatico com bom pacote de conforto, motor eficiente, porta-malas amplo e acabamento refinado. Catalogo demo com imagens reais de referencia do modelo.',
+  'Honda', 114700, 109900, 1,
+  '/demo-vehicles/honda-civic-exl-2020-01.jpg', '["/demo-vehicles/honda-civic-exl-2020-02.png","/demo-vehicles/honda-civic-exl-2020-03.jpg","/demo-vehicles/honda-civic-exl-2020-04.jpg"]'::jsonb, array['ganho_massa','saude_geral'],
   true, true, now(), now()
 ),
 (
   'Toyota Corolla XEi 2021',
   'toyota-corolla-xei-2021',
   'suplemento', (select id from categories where slug = 'sedans'), 'Sedan',
-  'Corolla automatico reconhecido por conforto, confiabilidade e liquidez. Ideal para familia e uso diario.',
+  'Sedan reconhecido por conforto, confiabilidade e liquidez. Boa escolha para familia, rotina urbana e viagens com baixo custo de manutencao.',
   'Toyota', 128900, null, 1,
-  '/vehicle-car.svg', '[]'::jsonb, array['ganho_massa','saude_geral'],
+  '/demo-vehicles/toyota-corolla-xei-2021-01.jpg', '["/demo-vehicles/toyota-corolla-xei-2021-02.jpg","/demo-vehicles/toyota-corolla-xei-2021-03.jpg","/demo-vehicles/toyota-corolla-xei-2021-04.jpg"]'::jsonb, array['ganho_massa','saude_geral'],
   true, true, now(), now()
 ),
 (
-  'Chevrolet Onix LTZ Turbo 2023',
-  'chevrolet-onix-ltz-turbo-2023',
-  'suplemento', (select id from categories where slug = 'hatches'), 'Hatch',
-  'Hatch turbo economico, conectado e pratico para cidade. Consulte condicao, opcionais e formas de negociacao com a equipe.',
-  'Chevrolet', 82900, 79900, 1,
-  '/vehicle-car.svg', '[]'::jsonb, array['emagrecimento'],
+  'Chevrolet Cruze LTZ 2020',
+  'chevrolet-cruze-ltz-2020',
+  'suplemento', (select id from categories where slug = 'sedans'), 'Sedan',
+  'Sedan medio com proposta moderna, bom desempenho, equipamentos de conforto e visual elegante. Ideal para quem busca dirigibilidade e tecnologia.',
+  'Chevrolet', 94900, 91900, 1,
+  '/demo-vehicles/chevrolet-cruze-ltz-2020-01.jpg', '["/demo-vehicles/chevrolet-cruze-ltz-2020-02.jpg","/demo-vehicles/chevrolet-cruze-ltz-2020-03.jpg","/demo-vehicles/chevrolet-cruze-ltz-2020-04.jpg"]'::jsonb, array['emagrecimento'],
   true, true, now(), now()
 ),
 (
   'Jeep Compass Longitude 2022',
   'jeep-compass-longitude-2022',
   'suplemento', (select id from categories where slug = 'suvs'), 'SUV',
-  'SUV com posicao elevada de dirigir, acabamento sofisticado e otimo espaco interno. Ideal para quem busca conforto e presenca.',
+  'SUV com posicao elevada de dirigir, acabamento sofisticado e otimo espaco interno. Ideal para quem busca conforto, presenca e versatilidade.',
   'Jeep', 149900, 145900, 1,
-  '/vehicle-stock.svg', '[]'::jsonb, array['ganho_massa','saude_geral'],
+  '/demo-vehicles/jeep-compass-longitude-2022-01.jpg', '["/demo-vehicles/jeep-compass-longitude-2022-02.jpg","/demo-vehicles/jeep-compass-longitude-2022-03.jpg","/demo-vehicles/jeep-compass-longitude-2022-04.jpg"]'::jsonb, array['ganho_massa','saude_geral'],
   true, true, now(), now()
 ),
 (
   'Fiat Toro Volcano 2022',
   'fiat-toro-volcano-2022',
   'suplemento', (select id from categories where slug = 'picapes'), 'Picape',
-  'Picape versatil para trabalho e lazer, com bom pacote de equipamentos e visual robusto. Atendimento direto para proposta e avaliacao de troca.',
+  'Picape versatil para trabalho e lazer, com bom pacote de equipamentos, visual robusto e cacamba pratica para a rotina.',
   'Fiat', 139900, null, 1,
-  '/vehicle-stock.svg', '[]'::jsonb, array['recuperacao'],
+  '/demo-vehicles/fiat-toro-volcano-2022-01.png', '["/demo-vehicles/fiat-toro-volcano-2022-02.png","/demo-vehicles/fiat-toro-volcano-2022-03.png","/demo-vehicles/fiat-toro-volcano-2022-04.jpg"]'::jsonb, array['recuperacao'],
+  true, true, now(), now()
+),
+(
+  'Ford Ranger Stormtrak 2023',
+  'ford-ranger-stormtrak-2023',
+  'suplemento', (select id from categories where slug = 'picapes'), 'Picape',
+  'Picape robusta com perfil premium, cabine ampla, boa capacidade de carga e conjunto indicado para estrada, campo e uso profissional.',
+  'Ford', 239900, 229900, 1,
+  '/demo-vehicles/ford-ranger-stormtrak-2023-01.jpg', '["/demo-vehicles/ford-ranger-stormtrak-2023-02.jpg","/demo-vehicles/ford-ranger-stormtrak-2023-03.jpg","/demo-vehicles/ford-ranger-stormtrak-2023-04.jpg"]'::jsonb, array['recuperacao','saude_geral'],
+  true, true, now(), now()
+),
+(
+  'Yamaha MT-03 ABS 2024',
+  'yamaha-mt-03-abs-2024',
+  'vestuario', (select id from categories where slug = 'motos'), 'Naked',
+  'Naked de media cilindrada com pilotagem agil, visual agressivo e boa resposta para uso urbano e passeios de fim de semana.',
+  'Yamaha', 31900, 29900, 1,
+  '/demo-vehicles/yamaha-mt-03-abs-2024-01.jpg', '["/demo-vehicles/yamaha-mt-03-abs-2024-02.jpg","/demo-vehicles/yamaha-mt-03-abs-2024-03.jpg","/demo-vehicles/yamaha-mt-03-abs-2024-04.jpg"]'::jsonb, array['emagrecimento'],
+  true, true, now(), now()
+),
+(
+  'BMW R 1200 GS 2018',
+  'bmw-r-1200-gs-2018',
+  'vestuario', (select id from categories where slug = 'motos'), 'Trail',
+  'Maxtrail consagrada para longas viagens, com ergonomia confortavel, porte imponente e conjunto pronto para asfalto e aventura.',
+  'BMW', 64900, null, 1,
+  '/demo-vehicles/bmw-r-1200-gs-2018-01.jpg', '["/demo-vehicles/bmw-r-1200-gs-2018-02.jpg","/demo-vehicles/bmw-r-1200-gs-2018-03.jpg","/demo-vehicles/bmw-r-1200-gs-2018-04.jpg"]'::jsonb, array['recuperacao','saude_geral'],
+  true, true, now(), now()
+),
+(
+  'Ducati Monster 696 2012',
+  'ducati-monster-696-2012',
+  'vestuario', (select id from categories where slug = 'motos'), 'Naked',
+  'Naked italiana com estilo marcante, proposta esportiva e ciclistica envolvente. Boa opcao para quem busca personalidade.',
+  'Ducati', 32900, 31500, 1,
+  '/demo-vehicles/ducati-monster-696-2012-01.jpg', '["/demo-vehicles/ducati-monster-696-2012-02.jpg","/demo-vehicles/ducati-monster-696-2012-03.jpg","/demo-vehicles/ducati-monster-696-2012-04.jpg"]'::jsonb, array['ganho_massa'],
   true, false, now(), now()
 ),
 (
-  'Honda CG 160 Fan 2023',
-  'honda-cg-160-fan-2023',
-  'vestuario', (select id from categories where slug = 'motos'), 'Moto urbana',
-  'Moto economica e confiavel para rotina urbana, trabalho e deslocamentos diarios. Consulte documentacao e disponibilidade.',
-  'Honda', 16900, 15900, 1,
-  '/vehicle-moto.svg', '[]'::jsonb, array['emagrecimento','recuperacao'],
+  'Triumph Tiger 800 XC 2015',
+  'triumph-tiger-800-xc-2015',
+  'vestuario', (select id from categories where slug = 'motos'), 'Trail',
+  'Trail de media-alta cilindrada com pegada aventureira, motor forte e conforto para viagens mais longas.',
+  'Triumph', 49900, 47900, 1,
+  '/demo-vehicles/triumph-tiger-800-xc-2015-01.jpg', '["/demo-vehicles/triumph-tiger-800-xc-2015-02.jpg","/demo-vehicles/triumph-tiger-800-xc-2015-03.jpg","/demo-vehicles/triumph-tiger-800-xc-2015-04.jpg"]'::jsonb, array['recuperacao'],
+  true, false, now(), now()
+),
+(
+  'Honda CBR 500R 2018',
+  'honda-cbr-500r-2018',
+  'vestuario', (select id from categories where slug = 'motos'), 'Sport',
+  'Esportiva bicilindrica equilibrada, indicada para quem quer visual carenado, confiabilidade e pilotagem acessivel.',
+  'Honda', 33900, null, 1,
+  '/demo-vehicles/honda-cbr-500r-2018-01.jpg', '["/demo-vehicles/honda-cbr-500r-2018-02.jpg","/demo-vehicles/honda-cbr-500r-2018-03.jpg","/demo-vehicles/honda-cbr-500r-2018-04.jpg"]'::jsonb, array['ganho_massa','emagrecimento'],
+  true, false, now(), now()
+),
+(
+  'Kawasaki Z650 ABS 2020',
+  'kawasaki-z650-abs-2020',
+  'vestuario', (select id from categories where slug = 'motos'), 'Naked',
+  'Naked de visual esportivo, motor bicilindrico e boa ergonomia para uso misto entre cidade e estrada.',
+  'Kawasaki', 39900, 37900, 1,
+  '/demo-vehicles/kawasaki-z650-abs-2020-01.jpg', '["/demo-vehicles/kawasaki-z650-abs-2020-02.jpg","/demo-vehicles/kawasaki-z650-abs-2020-03.jpg","/demo-vehicles/kawasaki-z650-abs-2020-04.jpg"]'::jsonb, array['saude_geral'],
   true, false, now(), now()
 )
 on conflict (slug) do update
@@ -712,6 +775,3 @@ set title = excluded.title,
     cover_url = excluded.cover_url,
     published = excluded.published,
     published_at = excluded.published_at;
-
-
-

@@ -1,4 +1,10 @@
 ﻿import { slugify } from '../utils/slug.js'
+import {
+  DEMO_CATEGORIES,
+  DEMO_PRODUCTS,
+  LEGACY_DEMO_CATEGORY_SLUGS,
+  LEGACY_DEMO_PRODUCT_SLUGS,
+} from '../data/demoVehicles.js'
 import { getClient, isMissingColumn, unwrap, unwrapMaybe } from './helpers.js'
 
 const PRODUCT_SELECT = `
@@ -19,102 +25,6 @@ function normalizeProduct(product) {
   }
 }
 
-const DEMO_CATEGORIES = [
-  { name: 'Sedans', slug: 'sedans', type: 'suplemento' },
-  { name: 'Hatches', slug: 'hatches', type: 'suplemento' },
-  { name: 'SUVs', slug: 'suvs', type: 'suplemento' },
-  { name: 'Picapes', slug: 'picapes', type: 'suplemento' },
-  { name: 'Motos', slug: 'motos', type: 'vestuario' },
-  { name: 'Acessorios automotivos', slug: 'acessorios-automotivos', type: 'acessorio' },
-]
-const LEGACY_DEMO_CATEGORY_SLUGS = ['garrafas', 'xicaras', 'combos']
-
-const DEMO_PRODUCTS = [
-  {
-    name: 'Honda Civic EXL 2020',
-    slug: 'honda-civic-exl-2020',
-    type: 'suplemento',
-    categorySlug: 'sedans',
-    subcategory: 'Sedan',
-    description: 'Sedan automatico com acabamento premium, bom historico de manutencao, interior confortavel e pacote completo de seguranca. Consulte quilometragem, documentacao e disponibilidade pelo WhatsApp.',
-    brand: 'Honda',
-    price: 112900,
-    promo_price: 109900,
-    stock: 1,
-    image_url: '/vehicle-car.svg',
-    objective_tags: ['ganho_massa', 'saude_geral'],
-  },
-  {
-    name: 'Toyota Corolla XEi 2021',
-    slug: 'toyota-corolla-xei-2021',
-    type: 'suplemento',
-    categorySlug: 'sedans',
-    subcategory: 'Sedan',
-    description: 'Corolla XEi automatico, reconhecido por conforto, confiabilidade e liquidez. Veiculo ideal para familia e uso diario com excelente pos-venda.',
-    brand: 'Toyota',
-    price: 128900,
-    promo_price: null,
-    stock: 1,
-    image_url: '/vehicle-car.svg',
-    objective_tags: ['ganho_massa', 'saude_geral'],
-  },
-  {
-    name: 'Chevrolet Onix LTZ Turbo 2023',
-    slug: 'chevrolet-onix-ltz-turbo-2023',
-    type: 'suplemento',
-    categorySlug: 'hatches',
-    subcategory: 'Hatch',
-    description: 'Hatch turbo economico, conectado e pratico para cidade. Consulte condicao, opcionais e formas de negociacao com a equipe.',
-    brand: 'Chevrolet',
-    price: 82900,
-    promo_price: 79900,
-    stock: 1,
-    image_url: '/vehicle-car.svg',
-    objective_tags: ['emagrecimento'],
-  },
-  {
-    name: 'Jeep Compass Longitude 2022',
-    slug: 'jeep-compass-longitude-2022',
-    type: 'suplemento',
-    categorySlug: 'suvs',
-    subcategory: 'SUV',
-    description: 'SUV com posicao elevada de dirigir, acabamento sofisticado e otimo espaco interno. Ideal para quem busca conforto e presenca.',
-    brand: 'Jeep',
-    price: 149900,
-    promo_price: 145900,
-    stock: 1,
-    image_url: '/vehicle-stock.svg',
-    objective_tags: ['ganho_massa', 'saude_geral'],
-  },
-  {
-    name: 'Fiat Toro Volcano 2022',
-    slug: 'fiat-toro-volcano-2022',
-    type: 'suplemento',
-    categorySlug: 'picapes',
-    subcategory: 'Picape',
-    description: 'Picape versatil para trabalho e lazer, com bom pacote de equipamentos e visual robusto. Atendimento direto para proposta e avaliacao de troca.',
-    brand: 'Fiat',
-    price: 139900,
-    promo_price: null,
-    stock: 1,
-    image_url: '/vehicle-stock.svg',
-    objective_tags: ['recuperacao'],
-  },
-  {
-    name: 'Honda CG 160 Fan 2023',
-    slug: 'honda-cg-160-fan-2023',
-    type: 'vestuario',
-    categorySlug: 'motos',
-    subcategory: 'Moto urbana',
-    description: 'Moto economica e confiavel para rotina urbana, trabalho e deslocamentos diarios. Consulte documentacao e disponibilidade.',
-    brand: 'Honda',
-    price: 16900,
-    promo_price: 15900,
-    stock: 1,
-    image_url: '/vehicle-moto.svg',
-    objective_tags: ['emagrecimento', 'recuperacao'],
-  },
-]
 function applyProductFilters(query, {
   onlyActive = false,
   featured = false,
@@ -178,6 +88,10 @@ export async function createDemoProductBase() {
     .from('categories')
     .update({ is_active: false })
     .in('slug', LEGACY_DEMO_CATEGORY_SLUGS)
+  await client
+    .from('products')
+    .update({ is_active: false, updated_at: now })
+    .in('slug', LEGACY_DEMO_PRODUCT_SLUGS)
 
   const categories = unwrap(
     await client
@@ -196,9 +110,9 @@ export async function createDemoProductBase() {
   const products = DEMO_PRODUCTS.map(({ categorySlug, ...product }) => ({
     ...product,
     category_id: categoryBySlug.get(categorySlug)?.id || null,
-    gallery_urls: [],
-    is_active: true,
-    is_featured: true,
+    gallery_urls: product.gallery_urls || [],
+    is_active: product.is_active ?? true,
+    is_featured: product.is_featured ?? true,
     created_at: now,
     updated_at: now,
   }))

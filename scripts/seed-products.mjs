@@ -1,13 +1,20 @@
-﻿/**
+/**
  * Digital Veiculos seed script.
  * Prerequisite: add SUPABASE_SERVICE_ROLE_KEY to .env.local.
- * Run: node scripts/seed.js
+ * Run: node scripts/seed-products.mjs
  */
 
 import { createClient } from '@supabase/supabase-js'
 import { readFileSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
+import {
+  DEMO_CATEGORIES,
+  DEMO_POSTS,
+  DEMO_PRODUCTS,
+  LEGACY_DEMO_CATEGORY_SLUGS,
+  LEGACY_DEMO_PRODUCT_SLUGS,
+} from '../src/data/demoVehicles.js'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const raw = readFileSync(join(ROOT, '.env.local'), 'utf8')
@@ -33,159 +40,29 @@ const db = createClient(SUPABASE_URL, SERVICE_KEY, {
   auth: { persistSession: false },
 })
 
-const CATEGORIES = [
-  { name: 'Sedans', slug: 'sedans', type: 'suplemento', is_active: true },
-  { name: 'Hatches', slug: 'hatches', type: 'suplemento', is_active: true },
-  { name: 'SUVs', slug: 'suvs', type: 'suplemento', is_active: true },
-  { name: 'Picapes', slug: 'picapes', type: 'suplemento', is_active: true },
-  { name: 'Motos', slug: 'motos', type: 'vestuario', is_active: true },
-  { name: 'Acessorios automotivos', slug: 'acessorios-automotivos', type: 'acessorio', is_active: true },
-]
+const CATEGORIES = DEMO_CATEGORIES.map((category) => ({ ...category, is_active: true }))
+const POSTS = DEMO_POSTS.map((post) => ({
+  ...post,
+  published_at: new Date().toISOString(),
+}))
 
-const PRODUCTS = [
-  {
-    name: 'Honda Civic EXL 2020',
-    slug: 'honda-civic-exl-2020',
-    type: 'suplemento',
-    catSlug: 'sedans',
-    subcategory: 'Sedan',
-    brand: 'Honda',
-    description: 'Sedan automatico com acabamento premium, bom historico de manutencao, interior confortavel e pacote completo de seguranca.',
-    price: 112900,
-    promo_price: 109900,
-    stock: 1,
-    image_url: '/vehicle-car.svg',
-    gallery_urls: [],
-    objective_tags: ['ganho_massa', 'saude_geral'],
-    is_featured: true,
-    is_active: true,
-  },
-  {
-    name: 'Toyota Corolla XEi 2021',
-    slug: 'toyota-corolla-xei-2021',
-    type: 'suplemento',
-    catSlug: 'sedans',
-    subcategory: 'Sedan',
-    brand: 'Toyota',
-    description: 'Corolla automatico reconhecido por conforto, confiabilidade e liquidez. Ideal para familia e uso diario.',
-    price: 128900,
-    promo_price: null,
-    stock: 1,
-    image_url: '/vehicle-car.svg',
-    gallery_urls: [],
-    objective_tags: ['ganho_massa', 'saude_geral'],
-    is_featured: true,
-    is_active: true,
-  },
-  {
-    name: 'Chevrolet Onix LTZ Turbo 2023',
-    slug: 'chevrolet-onix-ltz-turbo-2023',
-    type: 'suplemento',
-    catSlug: 'hatches',
-    subcategory: 'Hatch',
-    brand: 'Chevrolet',
-    description: 'Hatch turbo economico, conectado e pratico para cidade.',
-    price: 82900,
-    promo_price: 79900,
-    stock: 1,
-    image_url: '/vehicle-car.svg',
-    gallery_urls: [],
-    objective_tags: ['emagrecimento'],
-    is_featured: true,
-    is_active: true,
-  },
-  {
-    name: 'Jeep Compass Longitude 2022',
-    slug: 'jeep-compass-longitude-2022',
-    type: 'suplemento',
-    catSlug: 'suvs',
-    subcategory: 'SUV',
-    brand: 'Jeep',
-    description: 'SUV com posicao elevada de dirigir, acabamento sofisticado e otimo espaco interno.',
-    price: 149900,
-    promo_price: 145900,
-    stock: 1,
-    image_url: '/vehicle-stock.svg',
-    gallery_urls: [],
-    objective_tags: ['ganho_massa', 'saude_geral'],
-    is_featured: true,
-    is_active: true,
-  },
-  {
-    name: 'Fiat Toro Volcano 2022',
-    slug: 'fiat-toro-volcano-2022',
-    type: 'suplemento',
-    catSlug: 'picapes',
-    subcategory: 'Picape',
-    brand: 'Fiat',
-    description: 'Picape versatil para trabalho e lazer, com bom pacote de equipamentos e visual robusto.',
-    price: 139900,
-    promo_price: null,
-    stock: 1,
-    image_url: '/vehicle-stock.svg',
-    gallery_urls: [],
-    objective_tags: ['recuperacao'],
-    is_featured: false,
-    is_active: true,
-  },
-  {
-    name: 'Honda CG 160 Fan 2023',
-    slug: 'honda-cg-160-fan-2023',
-    type: 'vestuario',
-    catSlug: 'motos',
-    subcategory: 'Moto urbana',
-    brand: 'Honda',
-    description: 'Moto economica e confiavel para rotina urbana, trabalho e deslocamentos diarios.',
-    price: 16900,
-    promo_price: 15900,
-    stock: 1,
-    image_url: '/vehicle-moto.svg',
-    gallery_urls: [],
-    objective_tags: ['emagrecimento', 'recuperacao'],
-    is_featured: false,
-    is_active: true,
-  },
-]
+async function deactivateLegacyRows() {
+  const { error: categoryError } = await db
+    .from('categories')
+    .update({ is_active: false })
+    .in('slug', LEGACY_DEMO_CATEGORY_SLUGS)
+  if (categoryError) console.warn('Categorias antigas:', categoryError.message)
 
-const POSTS = [
-  {
-    title: 'Como escolher um seminovo com seguranca',
-    slug: 'como-escolher-seminovo-com-seguranca',
-    excerpt: 'Veja pontos essenciais para avaliar procedencia, estado geral e documentacao antes de negociar.',
-    content: '<p>Antes de fechar negocio, avalie historico de manutencao, documentacao, estado de pneus, pintura, motor e cambio.</p>',
-    cover_url: '',
-    is_published: true,
-    published_at: new Date().toISOString(),
-  },
-  {
-    title: 'Documentacao necessaria para comprar um veiculo',
-    slug: 'documentacao-necessaria-para-comprar-veiculo',
-    excerpt: 'Confira os principais documentos e cuidados antes de fechar negocio.',
-    content: '<p>Antes da compra, confira documento do veiculo, debitos, multas, licenciamento, comunicacao de venda e dados do vendedor.</p>',
-    cover_url: '',
-    is_published: true,
-    published_at: new Date().toISOString(),
-  },
-  {
-    title: 'O que observar no test-drive',
-    slug: 'o-que-observar-no-test-drive',
-    excerpt: 'Veja sinais importantes durante a avaliacao pratica do veiculo.',
-    content: '<p>No test-drive, observe partida, ruidos, freios, alinhamento, cambio, suspensao, ar-condicionado e funcionamento dos comandos.</p>',
-    cover_url: '',
-    is_published: true,
-    published_at: new Date().toISOString(),
-  },  {
-    title: 'Financiamento ou pagamento a vista',
-    slug: 'financiamento-ou-pagamento-a-vista',
-    excerpt: 'Entenda vantagens de cada caminho e escolha a melhor forma de negociar seu proximo veiculo.',
-    content: '<p>Compare taxas, entrada, prazo e custo total antes de decidir.</p>',
-    cover_url: '',
-    is_published: true,
-    published_at: new Date().toISOString(),
-  },
-]
+  const { error: productError } = await db
+    .from('products')
+    .update({ is_active: false, updated_at: new Date().toISOString() })
+    .in('slug', LEGACY_DEMO_PRODUCT_SLUGS)
+  if (productError) console.warn('Produtos antigos:', productError.message)
+}
 
 async function main() {
+  await deactivateLegacyRows()
+
   const { error: settingsError } = await db.from('store_settings').insert({
     store_name: 'Digital Veiculos',
     whatsapp_number: '5511918334855',
@@ -203,9 +80,9 @@ async function main() {
   if (catError) throw catError
 
   const categoryBySlug = Object.fromEntries(cats.map((cat) => [cat.slug, cat.id]))
-  const products = PRODUCTS.map(({ catSlug, ...product }) => ({
+  const products = DEMO_PRODUCTS.map(({ categorySlug, ...product }) => ({
     ...product,
-    category_id: categoryBySlug[catSlug] || null,
+    category_id: categoryBySlug[categorySlug] || null,
   }))
 
   const { error: productError } = await db.from('products').upsert(products, { onConflict: 'slug' })
