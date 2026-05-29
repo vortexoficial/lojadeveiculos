@@ -35,10 +35,10 @@ function App() {
     <Routes>
       <Route element={<PublicLayout />}>
         <Route index element={<Home />} />
-        <Route path="veiculos" element={<ProductsPage key="veiculos" />} />
+        <Route path="veiculos" element={<ProductsPage key="veiculos" pageVariant="overview" />} />
         <Route path="carros" element={<ProductsPage key="carros" lockedType="suplemento" />} />
         <Route path="motos" element={<ProductsPage key="motos" lockedType="vestuario" />} />
-        <Route path="ofertas" element={<ProductsPage key="ofertas" />} />
+        <Route path="ofertas" element={<ProductsPage key="ofertas" pageVariant="offers" />} />
         <Route path="produtos" element={<Navigate to="/veiculos" replace />} />
         <Route path="suplementos" element={<Navigate to="/carros" replace />} />
         <Route path="vestuario" element={<Navigate to="/motos" replace />} />

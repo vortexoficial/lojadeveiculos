@@ -224,7 +224,7 @@ function AdminBanners() {
             disabled={saving}
           />
           <ImageField
-            label="Mobile"
+            label="Mobile (1448x1086)"
             currentUrl={form.mobile_image_url}
             previewSrc={mobilePreview}
             onFileChange={setMobileFile}

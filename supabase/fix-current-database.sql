@@ -1,4 +1,4 @@
-﻿-- Correcoes seguras para bancos criados com uma versao antiga do projeto.
+-- Correcoes seguras para bancos criados com uma versao antiga do projeto.
 -- Rode no SQL Editor do Supabase. Nao apaga dados existentes.
 
 -- Digital Veiculos com Dashboard
@@ -746,30 +746,92 @@ values
 (
   'Como escolher um seminovo com seguranca',
   'como-escolher-seminovo-com-seguranca',
-  'Veja pontos essenciais para avaliar procedencia, estado geral e documentacao antes de negociar.',
-  '<p>Antes de fechar negocio, avalie historico de manutencao, documentacao, estado de pneus, pintura, motor e cambio.</p><p>Na duvida, fale com a equipe e solicite mais detalhes do veiculo.</p>',
-  '', true, now()
+  'Um guia pratico para avaliar procedencia, estado geral, historico e sinais de cuidado antes de negociar.',
+  $$<p>Comprar um seminovo fica muito mais simples quando a avaliacao segue uma ordem clara. Antes de olhar apenas preco ou quilometragem, observe se o veiculo combina com sua rotina, se tem historico coerente e se passa confianca no conjunto.</p>
+<figure><img src="/demo-vehicles/honda-civic-exl-2020-03.jpg" alt="Honda Civic seminovo visto de lado" /><figcaption>Comece pela visao geral: alinhamento de pecas, pintura, pneus e conservacao interna contam muito.</figcaption></figure>
+<h2>Comece pela procedencia</h2>
+<p>Peca informacoes sobre numero de proprietarios, historico de revisoes, manual, chave reserva e origem do veiculo. Um carro bem documentado costuma reduzir riscos e facilitar a transferencia.</p>
+<h2>Analise o estado do conjunto</h2>
+<p>Observe pintura, frestas entre portas e para-choques, desgaste de volante e bancos, funcionamento dos comandos, pneus, estepe, luzes, vidros, ar-condicionado e painel. Sinais isolados nao condenam o veiculo, mas ajudam a negociar melhor.</p>
+<h2>Checklist rapido antes de chamar no WhatsApp</h2>
+<ul><li>Confira se a quilometragem faz sentido com o ano e o desgaste interno.</li><li>Peca fotos de documento, painel, pneus e detalhes da lataria.</li><li>Verifique se ha debitos, multas ou restricoes.</li><li>Agende uma avaliacao presencial ou test-drive antes de decidir.</li></ul>
+<p>Com esse cuidado, a conversa deixa de ser apenas sobre desconto e passa a ser sobre valor real, estado de conservacao e seguranca na compra.</p>$$,
+  '/demo-vehicles/honda-civic-exl-2020-01.jpg', true, now()
 ),
 (
   'Documentacao necessaria para comprar um veiculo',
   'documentacao-necessaria-para-comprar-veiculo',
-  'Confira os principais documentos e cuidados antes de fechar negocio.',
-  '<p>Antes da compra, confira documento do veiculo, debitos, multas, licenciamento, comunicacao de venda e dados do vendedor.</p><p>Uma conferencia cuidadosa evita atrasos e torna a transferencia mais tranquila.</p>',
-  '', true, now()
+  'Veja quais documentos e conferencias evitam atrasos, custos inesperados e problemas na transferencia.',
+  $$<p>A parte documental e uma das etapas mais importantes da compra. Mesmo quando o veiculo parece perfeito, pendencias de licenciamento, multas ou comunicacao de venda podem atrasar a transferencia e gerar custos extras.</p>
+<figure><img src="/demo-vehicles/jeep-compass-longitude-2022-02.jpg" alt="SUV branco estacionado" /><figcaption>Um veiculo bem escolhido tambem precisa estar com a documentacao em ordem.</figcaption></figure>
+<h2>O que conferir antes de fechar</h2>
+<p>Verifique CRLV, dados do proprietario, placa, Renavam, chassi, exercicio de licenciamento, multas, IPVA, restricoes financeiras e eventuais bloqueios administrativos. Se houver financiamento, confirme como sera feita a quitacao ou transferencia.</p>
+<h2>Dados do comprador e do vendedor</h2>
+<p>Tenha documentos pessoais atualizados e confira se os dados informados batem com os documentos do veiculo. Em compras com loja ou intermediacao, peca orientacao sobre prazos, recibo, assinatura e reconhecimento de firma quando aplicavel.</p>
+<h2>Cuidados que evitam dor de cabeca</h2>
+<ul><li>Confirme debitos antes de sinalizar qualquer valor.</li><li>Guarde comprovantes de pagamento e conversas importantes.</li><li>Confira se o veiculo passou por leilao, sinistro ou restricao relevante.</li><li>Combine por escrito o que esta incluso na negociacao.</li></ul>
+<p>Uma compra tranquila depende tanto do estado do veiculo quanto da clareza documental. Na duvida, peca apoio antes de assinar.</p>$$,
+  '/demo-vehicles/jeep-compass-longitude-2022-01.jpg', true, now()
 ),
 (
-  'Financiamento ou pagamento a vista',
+  'Financiamento ou pagamento a vista: como decidir',
   'financiamento-ou-pagamento-a-vista',
-  'Entenda vantagens de cada caminho e escolha a melhor forma de negociar seu proximo veiculo.',
-  '<p>Pagamento a vista pode abrir margem de negociacao. Financiamento ajuda a preservar capital e organizar parcelas.</p><p>Compare taxas, entrada, prazo e custo total antes de decidir.</p>',
-  '', true, now()
+  'Compare entrada, parcela, custo total e margem de negociacao para escolher a forma de compra mais inteligente.',
+  $$<p>Nem sempre a melhor escolha e simplesmente pagar a vista. Em alguns casos, preservar parte do capital para documentacao, seguro, manutencao inicial ou reserva de emergencia pode fazer mais sentido. O ponto principal e comparar custo total e conforto financeiro.</p>
+<figure><img src="/demo-vehicles/toyota-corolla-xei-2021-04.jpg" alt="Toyota Corolla em area externa" /><figcaption>Planejamento financeiro ajuda a comprar melhor e manter o veiculo sem aperto depois.</figcaption></figure>
+<h2>Quando o pagamento a vista ajuda</h2>
+<p>O pagamento a vista pode aumentar o poder de negociacao, simplificar a compra e evitar juros. Ele costuma ser interessante quando o comprador ja reservou dinheiro para transferencia, seguro e revisao preventiva.</p>
+<h2>Quando financiar pode ser melhor</h2>
+<p>O financiamento pode ser util para quem quer preservar caixa ou antecipar a troca do veiculo. Compare taxa, prazo, valor de entrada, CET e valor final pago. Uma parcela confortavel deve caber no orcamento sem comprometer despesas fixas.</p>
+<h2>Antes de decidir, simule estes pontos</h2>
+<ul><li>Valor total pago ao fim do contrato.</li><li>Entrada minima e entrada ideal.</li><li>Custo de seguro, documentacao e manutencao inicial.</li><li>Possibilidade de quitar antecipadamente.</li></ul>
+<p>A melhor decisao e a que equilibra preco, seguranca e tranquilidade depois da compra.</p>$$,
+  '/demo-vehicles/toyota-corolla-xei-2021-01.jpg', true, now()
 ),
 (
-  'O que observar no test-drive',
+  'O que observar no test-drive antes de fechar negocio',
   'o-que-observar-no-test-drive',
-  'Veja sinais importantes durante a avaliacao pratica do veiculo.',
-  '<p>No test-drive, observe partida, ruidos, freios, alinhamento, cambio, suspensao, ar-condicionado e funcionamento dos comandos.</p><p>Tambem vale testar em baixa velocidade e em vias com diferentes pisos.</p>',
-  '', true, now()
+  'Saiba como avaliar motor, cambio, freios, suspensao e conforto durante uma volta curta, mas bem planejada.',
+  $$<p>O test-drive nao serve apenas para sentir se o veiculo e agradavel. Ele ajuda a perceber sinais que foto nenhuma mostra: ruidos, vibracoes, resposta do motor, funcionamento do cambio e comportamento da suspensao.</p>
+<figure><img src="/demo-vehicles/chevrolet-cruze-ltz-2020-02.jpg" alt="Chevrolet Cruze vermelho em estacionamento" /><figcaption>Uma volta bem feita revela conforto, dirigibilidade e possiveis pontos de atencao.</figcaption></figure>
+<h2>Antes de sair</h2>
+<p>Observe a partida a frio, luzes do painel, marcha lenta, ar-condicionado, vidros, travas, multimidia e comandos eletricos. Se possivel, teste com o radio desligado para ouvir melhor o veiculo.</p>
+<h2>Durante o percurso</h2>
+<p>Use trechos com baixa velocidade, pequenas irregularidades e uma reta segura. Perceba se o carro puxa para algum lado, se ha trepidacao ao frear, se o cambio troca suavemente e se a suspensao trabalha sem batidas secas.</p>
+<h2>Sinais que merecem atencao</h2>
+<ul><li>Barulhos metalicos ou estalos em curvas.</li><li>Fumaca excessiva ou cheiro forte.</li><li>Volante desalinhado ou vibrando.</li><li>Freio baixo, duro demais ou com ruido persistente.</li></ul>
+<p>Se algo parecer estranho, pergunte. Uma boa negociacao tambem depende de transparencia.</p>$$,
+  '/demo-vehicles/chevrolet-cruze-ltz-2020-01.jpg', true, now()
+),
+(
+  'Carro, SUV ou picape: qual combina com sua rotina?',
+  'carro-suv-ou-picape-qual-combina-com-sua-rotina',
+  'Entenda como uso diario, espaco, consumo e tipo de trajeto influenciam na escolha do veiculo ideal.',
+  $$<p>A escolha do tipo de veiculo deve partir da rotina. Um sedan pode ser excelente para conforto e porta-malas, um SUV entrega posicao elevada e versatilidade, enquanto uma picape pode resolver melhor trabalho, carga e viagens com equipamentos.</p>
+<figure><img src="/demo-vehicles/fiat-toro-volcano-2022-04.jpg" alt="Fiat Toro em ambiente externo" /><figcaption>Picapes e SUVs costumam atender bem quem alterna trabalho, familia e lazer.</figcaption></figure>
+<h2>Para cidade e economia</h2>
+<p>Hatches e sedans compactos tendem a ser mais faceis de estacionar e manter. Para quem roda muito em transito urbano, consumo, seguro e facilidade de manutencao pesam bastante.</p>
+<h2>Para familia e estrada</h2>
+<p>Sedans medios e SUVs oferecem mais conforto, porta-malas e presenca. Verifique espaco para cadeirinhas, posicao de dirigir, capacidade de bagagem e desempenho com o carro carregado.</p>
+<h2>Para trabalho e uso misto</h2>
+<p>Picapes entram bem quando a rotina envolve carga, estrada de terra, ferramentas ou equipamentos. Nesse caso, avalie capacidade de carga, pneus, suspensao e custo de manutencao.</p>
+<ul><li>Liste como voce usa o veiculo em uma semana comum.</li><li>Compare seguro, consumo e revisoes.</li><li>Pense no tamanho da garagem e vagas que voce costuma usar.</li><li>Escolha pelo uso real, nao apenas pela aparencia.</li></ul>$$,
+  '/demo-vehicles/fiat-toro-volcano-2022-01.png', true, now()
+),
+(
+  'Motos seminovas: cuidados antes da compra',
+  'motos-seminovas-cuidados-antes-da-compra',
+  'Veja pontos essenciais para avaliar mecanica, documentacao, desgaste e seguranca antes de comprar uma moto usada.',
+  $$<p>Motos seminovas podem entregar excelente custo-beneficio, mas pedem uma avaliacao cuidadosa. Pequenos detalhes em pneus, relacao, bengalas, freios e documentacao ajudam a entender se a moto foi bem cuidada.</p>
+<figure><img src="/demo-vehicles/yamaha-mt-03-abs-2024-03.jpg" alt="Yamaha MT-03 em area externa" /><figcaption>Em motos, desgaste de pneus, freios e relacao aparece rapido e ajuda a estimar manutencao inicial.</figcaption></figure>
+<h2>Olhe os itens de seguranca primeiro</h2>
+<p>Confira pneus, discos e pastilhas de freio, vazamentos, suspensao, luzes, setas e estado da relacao. Se houver ABS, verifique luzes de aviso no painel e comportamento durante a partida.</p>
+<h2>Procure sinais de queda ou uso severo</h2>
+<p>Manetes ralados, pedaleiras tortas, riscos profundos, guidon desalinhado e carenagens mal encaixadas merecem atencao. Nem toda marca inviabiliza a compra, mas deve entrar na negociacao.</p>
+<h2>Documentacao e test-ride</h2>
+<p>Confirme licenciamento, debitos, procedencia e se os numeros de chassi e motor estao regulares. No teste, perceba embreagem, engates, freios, estabilidade e ruidos fora do normal.</p>
+<ul><li>Evite decidir sem ver a moto fria.</li><li>Peca historico de revisoes e trocas recentes.</li><li>Reserve verba para revisao inicial e equipamentos.</li><li>Priorize motos com documentacao limpa e manutencao clara.</li></ul>$$,
+  '/demo-vehicles/yamaha-mt-03-abs-2024-01.jpg', true, now()
 )
 on conflict (slug) do update
 set title = excluded.title,

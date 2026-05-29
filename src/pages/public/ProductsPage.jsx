@@ -1,5 +1,5 @@
 ﻿import { useEffect, useMemo, useState } from 'react'
-import { useOutletContext, useSearchParams } from 'react-router-dom'
+import { Link, useOutletContext, useSearchParams } from 'react-router-dom'
 import EmptyState from '../../components/EmptyState.jsx'
 import Loading from '../../components/Loading.jsx'
 import ProductCard from '../../components/ProductCard.jsx'
@@ -7,8 +7,177 @@ import ProductFilters from '../../components/ProductFilters.jsx'
 import { isSupabaseConfigured } from '../../config/env.js'
 import { listCategories } from '../../services/categoriesService.js'
 import { listProducts } from '../../services/productsService.js'
+import {
+  formatCurrency,
+  formatCurrencyNoCents,
+  getProductTypeLabel,
+} from '../../utils/formatters.js'
 
-function ProductsPage({ lockedType = '' }) {
+const TYPE_ROUTES = {
+  suplemento: '/carros',
+  vestuario: '/motos',
+  acessorio: '/veiculos?tipo=acessorio',
+  outro: '/veiculos?tipo=outro',
+}
+
+const SEGMENTS = [
+  {
+    type: 'suplemento',
+    title: 'Carros',
+    subtitle: 'Sedans, hatches, SUVs e picapes para comparar com calma.',
+  },
+  {
+    type: 'vestuario',
+    title: 'Motos',
+    subtitle: 'Opcoes para cidade, viagem, economia e lazer.',
+  },
+  {
+    type: 'offers',
+    title: 'Ofertas',
+    subtitle: 'Veiculos com preco promocional em destaque.',
+    route: '/ofertas?sort=promocoes',
+  },
+]
+
+function VehicleSegmentIcon({ type }) {
+  if (type === 'vestuario') {
+    return (
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <path d="M8 21h3l4-7h5l4 7h2" />
+        <path d="M16 14l-2-4h5l3 4" />
+        <circle cx="8" cy="22" r="4" />
+        <circle cx="25" cy="22" r="4" />
+      </svg>
+    )
+  }
+
+  if (type === 'offers') {
+    return (
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <path d="M6 7h11l9 9-10 10-9-9V7Z" />
+        <path d="M11 12h.01" />
+        <path d="M13 21l8-8" />
+        <path d="M12 14l2 2" />
+        <path d="M20 20l-2-2" />
+      </svg>
+    )
+  }
+
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+      <path d="M5 19l3-7h16l3 7" />
+      <path d="M7 19h18v5H7v-5Z" />
+      <path d="M10 24v2" />
+      <path d="M22 24v2" />
+      <circle cx="11" cy="22" r="2" />
+      <circle cx="21" cy="22" r="2" />
+    </svg>
+  )
+}
+
+function getProductPrice(product) {
+  return Number(product.promo_price || product.price || 0)
+}
+
+function getInventorySummary(products) {
+  const prices = products
+    .map(getProductPrice)
+    .filter((price) => price > 0)
+
+  return {
+    total: products.length,
+    cars: products.filter((product) => product.type === 'suplemento').length,
+    motos: products.filter((product) => product.type === 'vestuario').length,
+    offers: products.filter((product) => product.promo_price).length,
+    cheapest: prices.length ? Math.min(...prices) : 0,
+  }
+}
+
+function formatResultCount(count) {
+  if (count === 1) return '1 veiculo encontrado'
+  return `${count} veiculos encontrados`
+}
+
+function VehicleOverview({ summary }) {
+  const metrics = [
+    { label: 'Frota ativa', value: summary.total || '-' },
+    { label: 'Carros', value: summary.cars || '-' },
+    { label: 'Motos', value: summary.motos || '-' },
+    {
+      label: 'A partir de',
+      value: summary.cheapest ? formatCurrencyNoCents(summary.cheapest) : '-',
+      title: summary.cheapest ? formatCurrency(summary.cheapest) : undefined,
+      valueClassName: 'is-currency',
+    },
+  ]
+
+  return (
+    <>
+      <section className="vehicle-overview" aria-label="Resumo da frota">
+        <div className="vehicle-overview-copy">
+          <span className="eyebrow">Central da frota</span>
+          <h2>Comece pelo tipo de veiculo e aprofunde a busca depois.</h2>
+          <p>
+            A pagina de veiculos agora funciona como uma visao geral: mostra o tamanho da
+            frota, separa carros e motos, destaca ofertas e leva cada pessoa para a
+            listagem certa.
+          </p>
+          <div className="vehicle-overview-actions">
+            <Link className="button" to="/carros">
+              Ver carros
+            </Link>
+            <Link className="button secondary" to="/motos">
+              Ver motos
+            </Link>
+          </div>
+        </div>
+
+        <div className="vehicle-metric-grid">
+          {metrics.map((metric) => (
+            <div className="vehicle-metric-card" key={metric.label}>
+              <span>{metric.label}</span>
+              <strong
+                className={`vehicle-metric-value ${metric.valueClassName || ''}`.trim()}
+                title={metric.title}
+              >
+                {metric.value}
+              </strong>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="vehicle-segment-grid" aria-label="Atalhos por segmento">
+        {SEGMENTS.map((segment) => {
+          const count =
+            segment.type === 'offers'
+              ? summary.offers
+              : segment.type === 'suplemento'
+              ? summary.cars
+              : summary.motos
+          const route = segment.route || TYPE_ROUTES[segment.type] || '/veiculos'
+
+          return (
+            <Link className="vehicle-segment-card" key={segment.type} to={route}>
+              <span className="vehicle-segment-icon">
+                <VehicleSegmentIcon type={segment.type} />
+              </span>
+              <span className="vehicle-segment-body">
+                <strong>{segment.title}</strong>
+                <span>{segment.subtitle}</span>
+              </span>
+              <span className="vehicle-segment-meta">
+                {count || 0} {count === 1 ? 'opcao' : 'opcoes'}
+              </span>
+            </Link>
+          )
+        })}
+      </section>
+    </>
+  )
+}
+
+function ProductsPage({ lockedType = '', pageVariant = 'catalog' }) {
   const { settings } = useOutletContext()
   const [searchParams] = useSearchParams()
   const [categories, setCategories] = useState([])
@@ -19,7 +188,7 @@ function ProductsPage({ lockedType = '' }) {
     search: searchParams.get('q') || '',
     categoryId: searchParams.get('categoria') || '',
     type: lockedType || searchParams.get('tipo') || '',
-    sort: searchParams.get('sort') || 'recentes',
+    sort: searchParams.get('sort') || (pageVariant === 'offers' ? 'promocoes' : 'recentes'),
   })
 
   useEffect(() => {
@@ -57,8 +226,10 @@ function ProductsPage({ lockedType = '' }) {
       const matchesCategory =
         !filters.categoryId || product.category_id === filters.categoryId
       const matchesType = !filters.type || product.type === filters.type
+      const matchesOfferPage =
+        pageVariant !== 'offers' || Boolean(product.promo_price)
 
-      return matchesSearch && matchesCategory && matchesType
+      return matchesSearch && matchesCategory && matchesType && matchesOfferPage
     })
 
     return filtered.sort((a, b) => {
@@ -73,25 +244,58 @@ function ProductsPage({ lockedType = '' }) {
 
       return new Date(b.created_at) - new Date(a.created_at)
     })
-  }, [products, filters])
+  }, [products, filters, pageVariant])
+
+  const visibleCategories = useMemo(() => {
+    const categoryType = lockedType || filters.type
+
+    if (!categoryType) return categories
+
+    return categories.filter(
+      (category) =>
+        category.type === categoryType || category.id === filters.categoryId,
+    )
+  }, [categories, filters.categoryId, filters.type, lockedType])
+
+  const summary = useMemo(() => getInventorySummary(products), [products])
 
   const heading =
     lockedType === 'suplemento'
       ? { title: 'Carros', subtitle: 'Sedans, hatches, SUVs e outras oportunidades selecionadas para voce comparar pelo WhatsApp.' }
       : lockedType === 'vestuario'
       ? { title: 'Motos', subtitle: 'Modelos revisados para quem busca agilidade, economia e bom atendimento.' }
+      : pageVariant === 'offers'
+      ? { title: 'Ofertas', subtitle: 'Oportunidades com preco promocional para voce chamar no WhatsApp e negociar rapido.' }
       : { title: 'Veiculos', subtitle: 'Filtre, compare e fale direto pelo WhatsApp para tirar duvidas ou negociar.' }
+
+  const hasActiveCatalogFilters = Boolean(
+    filters.search ||
+      filters.categoryId ||
+      filters.type ||
+      (filters.sort && filters.sort !== 'recentes'),
+  )
+  const showOverview = pageVariant === 'overview' && !hasActiveCatalogFilters
 
   return (
     <main className="page">
-      <section className="page-heading">
-        <span className="eyebrow">Digital Veiculos</span>
-        <h1>{heading.title}</h1>
-        <p>{heading.subtitle}</p>
+      <section className="page-heading catalog-heading">
+        <div>
+          <span className="eyebrow">Digital Veiculos</span>
+          <h1>{heading.title}</h1>
+          <p>{heading.subtitle}</p>
+        </div>
+        {lockedType ? (
+          <div className="catalog-heading-card" aria-label={`Pagina de ${heading.title}`}>
+            <span>Segmento</span>
+            <strong>{getProductTypeLabel(lockedType)}</strong>
+          </div>
+        ) : null}
       </section>
 
+      {showOverview ? <VehicleOverview summary={summary} /> : null}
+
       <ProductFilters
-        categories={categories}
+        categories={visibleCategories}
         filters={filters}
         onChange={setFilters}
         showType={!lockedType}
@@ -101,10 +305,22 @@ function ProductsPage({ lockedType = '' }) {
 
       {loading ? <Loading /> : null}
       {error ? <div className="form-status error">{error}</div> : null}
+      {!loading ? (
+        <div className="catalog-status-row">
+          <span>{formatResultCount(filteredProducts.length)}</span>
+          {lockedType ? (
+            <strong>{getProductTypeLabel(lockedType)}</strong>
+          ) : pageVariant === 'offers' ? (
+            <strong>Somente ofertas</strong>
+          ) : (
+            <strong>Todos os segmentos</strong>
+          )}
+        </div>
+      ) : null}
       {!loading && !filteredProducts.length ? (
         <EmptyState
-          title="Nenhum veiculo encontrado"
-          message="Ajuste os filtros ou cadastre novos veiculos no painel."
+          title={pageVariant === 'offers' ? 'Nenhuma oferta encontrada' : 'Nenhum veiculo encontrado'}
+          message={pageVariant === 'offers' ? 'Cadastre um preco promocional ou ajuste os filtros.' : 'Ajuste os filtros ou cadastre novos veiculos no painel.'}
         />
       ) : null}
 

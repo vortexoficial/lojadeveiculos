@@ -7,6 +7,17 @@
   })
 }
 
+export function formatCurrencyNoCents(value) {
+  const number = Number(value || 0)
+
+  return number.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    maximumFractionDigits: 0,
+    minimumFractionDigits: 0,
+  })
+}
+
 export function formatNumber(value, digits = 0) {
   if (value === null || value === undefined || value === '') return '-'
   return Number(value).toLocaleString('pt-BR', {
