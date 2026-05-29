@@ -140,8 +140,20 @@ function AdminBanners() {
     try {
       let desktopImageUrl = form.desktop_image_url
       let mobileImageUrl = form.mobile_image_url
-      if (desktopFile) desktopImageUrl = await uploadStoreImage(desktopFile, 'banners/desktop')
-      if (mobileFile) mobileImageUrl = await uploadStoreImage(mobileFile, 'banners/mobile')
+      if (desktopFile) {
+        desktopImageUrl = await uploadStoreImage(desktopFile, 'banners/desktop', {
+          convertToWebp: true,
+          maxWidth: 1920,
+          quality: 0.82,
+        })
+      }
+      if (mobileFile) {
+        mobileImageUrl = await uploadStoreImage(mobileFile, 'banners/mobile', {
+          convertToWebp: true,
+          maxWidth: 1448,
+          quality: 0.82,
+        })
+      }
 
       await saveBanner({
         ...form,

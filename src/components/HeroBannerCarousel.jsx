@@ -8,6 +8,12 @@ function getMobileImage(banner) {
   return banner.mobile_image_url || banner.mobile_image || getDesktopImage(banner)
 }
 
+function getLocalWebpImage(url) {
+  if (!url || !url.startsWith('/banners/')) return ''
+  if (!/\.(jpe?g|png)$/i.test(url)) return ''
+  return url.replace(/\.(jpe?g|png)$/i, '.webp')
+}
+
 function normalizeBanners(banners) {
   return (banners || [])
     .filter((b) => b.is_active !== false)
@@ -168,6 +174,8 @@ function HeroBannerCarousel({ banners = [], autoplayDelay = 5500 }) {
         {extendedSlides.map((banner, index) => {
           const desktopImage = getDesktopImage(banner)
           const mobileImage  = getMobileImage(banner)
+          const desktopWebp  = getLocalWebpImage(desktopImage)
+          const mobileWebp   = getLocalWebpImage(mobileImage)
           const title        = banner.title || `Banner ${index + 1}`
 
           return (
@@ -178,13 +186,20 @@ function HeroBannerCarousel({ banners = [], autoplayDelay = 5500 }) {
               style={{ width: `${100 / total}%`, flex: `0 0 ${100 / total}%` }}
             >
               <picture>
+                {mobileWebp ? (
+                  <source type="image/webp" media="(max-width: 767px)" srcSet={mobileWebp} />
+                ) : null}
                 <source media="(max-width: 767px)" srcSet={mobileImage} />
+                {desktopWebp ? (
+                  <source type="image/webp" media="(min-width: 768px)" srcSet={desktopWebp} />
+                ) : null}
                 <source media="(min-width: 768px)" srcSet={desktopImage || mobileImage} />
                 <img
                   src={desktopImage || mobileImage}
                   alt={title}
                   loading={index <= 1 ? 'eager' : 'lazy'}
                   fetchPriority={index === 1 ? 'high' : 'auto'}
+                  decoding="async"
                   style={{
                     '--desktop-position': banner.desktop_position || 'center center',
                     '--mobile-position':  banner.mobile_position  || 'center center',
